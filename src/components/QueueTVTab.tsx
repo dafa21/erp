@@ -417,13 +417,14 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
         <div className="xl:col-span-7 flex flex-col gap-4 overflow-hidden">
           
           {youtubeUrl && (
-            <div className="w-full aspect-video bg-black rounded-[2.5rem] border border-slate-200/80 shadow-md relative overflow-hidden shrink-0">
+            <div className="w-full aspect-video bg-black rounded-[2.5rem] border border-slate-200/80 shadow-md relative overflow-hidden shrink-0 group">
               <iframe 
                 src={youtubeUrl} 
-                className="absolute inset-0 w-full h-full pointer-events-none" 
-                allow="autoplay; encrypted-media" 
+                className="absolute inset-0 w-full h-full" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen
                 frameBorder="0"
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
           )}
