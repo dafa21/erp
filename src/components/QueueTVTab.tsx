@@ -320,9 +320,17 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
 
         {logos.length > 0 && (
           <div className="hidden xl:flex items-center justify-center mx-auto h-12 gap-5 shrink-0 overflow-hidden">
-            {logos.map((lg, idx) => (
-              <img key={idx} src={lg} alt={`Sponsor ${idx+1}`} className="h-full max-w-[150px] object-contain drop-shadow-sm" />
-            ))}
+            <div className="flex items-center gap-3">
+              {logos.map((lg, idx) => (
+                <img key={idx} src={lg} alt={`Sponsor ${idx+1}`} className="h-full max-w-[150px] object-contain drop-shadow-sm" />
+              ))}
+              {activeClinic?.sponsor_name && (
+                <div className="flex flex-col justify-center ml-2 border-l-2 border-slate-200 pl-4 h-8">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Supported By</span>
+                  <span className="text-sm font-black text-slate-700 tracking-tight leading-none">{activeClinic.sponsor_name}</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
