@@ -1,0 +1,11 @@
+{
+  "name": "ERP Medical Nurhealth",
+  "description": "Enterprise Medical ERP with SQL Database connected RBAC, Admin Panel, and real-time dashboard simulating hospital systems.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

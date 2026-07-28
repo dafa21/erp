@@ -1,0 +1,67 @@
+4360:              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'rbac' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
+4361-            >
+4362:              <Fingerprint className={`w-4 h-4 ${activeTab === 'rbac' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+4363-              <span>Matriks RBAC</span>
+4364-            </button>
+4365-
+4366-            <div className="pt-4 pb-2 px-3 border-t border-slate-100 dark:border-slate-800/30 mt-2">
+4367-               <p className="text-[9px] font-mono uppercase tracking-widest text-[#00A86B] dark:text-[#00A86B] font-bold">Spesifikasi & Teknis</p>
+4368-            </div>
+4369-
+4370-            <button 
+4371-              onClick={() => { setActiveTab('architecture'); setIsMobileMenuOpen(false); }}
+4372-              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-colors rounded-lg ${activeTab === 'architecture' ? 'bg-slate-900 dark:bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-[#00A86B] hover:text-slate-900 dark:hover:text-white'}`}
+4373-            >
+4374-              <ShieldAlert className="w-4 h-4" />
+4375-              <span>Arsitektur & Keamanan</span>
+4376-            </button>
+4377-
+4378-            <button 
+4379-              onClick={() => { setActiveTab('schema'); setIsMobileMenuOpen(false); }}
+4380-              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-medium transition-colors rounded-lg ${activeTab === 'schema' ? 'bg-slate-900 dark:bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+4381-            >
+4382-              <Database className="w-4 h-4" />
+--
+4598:                {activeTab === 'rbac' && 'Matriks RBAC'}
+4599-                {activeTab === 'architecture' && 'Arsitektur & Keamanan'}
+4600-                {activeTab === 'schema' && 'Skema DDL SQL'}
+4601-                {activeTab === 'query' && 'Complex Query'}
+4602-              </span>
+4603-            </div>
+4604-          </div>
+4605-
+4606-          <div className="flex items-center gap-4">
+4607-            {/* AI Chatbot Header Button */}
+4608-            <button 
+4609-              onClick={() => {
+4610-                setIsChatbotDismissed(false);
+4611-                localStorage.setItem('nhc_chatbot_dismissed', 'false');
+4612-                setAiChatOpen(prev => !prev);
+4613-              }}
+4614-              className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-950/40 transition-all text-xs font-semibold outline-none shadow-sm shadow-indigo-100/50 dark:shadow-none"
+4615-              title="Konsultasi AI Copilot"
+4616-            >
+4617-              <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-pulse shrink-0" />
+4618-              <span>AI Copilot</span>
+--
+7383:              {activeTab === 'rbac' && (
+7384-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col transition-colors">
+7385-            <header className="mb-4 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 shrink-0 border-l-4 border-l-blue-600 dark:border-l-indigo-500">
+7386-              <div className="flex items-center gap-4">
+7387-                <div className="w-10 h-10 bg-slate-900 dark:bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+7388-                  <ShieldCheck className="w-5 h-5" />
+7389-                </div>
+7390-                <div>
+7391-                  <h2 className="text-lg font-black tracking-tight text-slate-800 dark:text-slate-100 uppercase leading-none">{architectureData.rbac.title}</h2>
+7392-                  <p className="text-[10px] text-slate-500 dark:text-slate-500 font-bold uppercase tracking-widest mt-1">Authority Cluster Layer</p>
+7393-                </div>
+7394-              </div>
+7395-            </header>
+7396-            
+7397-            <div className="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-2 custom-scrollbar min-h-0 pb-8">
+7398-              {architectureData.rbac.roles.map((role, idx) => (
+7399-                <div key={idx} className={`p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col group hover:border-blue-300 dark:hover:border-indigo-500 transition-all`}>
+7400-                  <div className="flex justify-between items-center mb-3 shrink-0">
+7401-                    <div className="flex items-center gap-3">
+7402-                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${role.color} text-white shadow-md group-hover:scale-105 transition-transform`}>
+7403-                         {icons[role.icon]}

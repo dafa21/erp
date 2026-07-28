@@ -1,0 +1,237 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import "leaflet/dist/leaflet.css";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --accent-primary: #4f46e5;
+  --sidebar-bg: #ffffff;
+}
+
+.dark {
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #1e293b;
+  --accent-primary: #6366f1;
+  --sidebar-bg: #0f172a;
+  background-color: #020617;
+  color: #f8fafc;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Card & Surface Polishing */
+.card-surface {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.dark .card-surface {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+}
+
+/* Input Polishing */
+input, select, textarea {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.dark input, .dark select, .dark textarea {
+  background-color: var(--bg-tertiary);
+}
+
+@media print {
+  @page {
+    margin: 0;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .print-a4 {
+    width: 210mm !important;
+    min-height: 297mm;
+    padding: 20mm !important;
+    background: white !important;
+    margin: 0 auto !important;
+  }
+  
+  .print-thermal {
+    width: 80mm !important;
+    padding: 5mm !important;
+    font-size: 9pt !important;
+    background: white !important;
+    margin: 0 auto !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Custom Scrollbar Refinement - Fully Responsive using !important */
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important; /* Soft light gray for light mode sidebar & list */
+  border-radius: 9999px !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important; /* Matte grayish-blue hover */
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 9999px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
+/* Dark theme specific scrollbar colors */
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569 !important; /* Elegant slate gray for dark theme */
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b !important;
+}
+
+/* Global Selection Color */
+::selection {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+
+/* Smooth transitions for all interactive elements */
+a, button, input, select, textarea {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modern Typography Polish */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+}
+
+#main-content {
+  scroll-behavior: smooth;
+}
+
+#sidebar-nav button {
+  position: relative;
+  overflow: hidden;
+}
+
+#sidebar-nav button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+#sidebar-nav button.bg-slate-900::after,
+#sidebar-nav button.bg-indigo-600::after {
+  background: white;
+}
+
+#sidebar-nav button:hover::after {
+  background: #00A86B; /* Nurhealth Green for hover hint */
+}
+
+/* Modal Backdrop Polish */
+.fixed.inset-0.bg-slate-900\/60 {
+  backdrop-filter: blur(8px) saturate(180%);
+}
+
+@utility scrollbar-hide {
+  /* IE and Edge */
+  -ms-overflow-style: none;
+
+  /* Firefox */
+  scrollbar-width: none;
+
+  /* Safari and Chrome */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
