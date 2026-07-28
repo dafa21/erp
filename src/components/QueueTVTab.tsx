@@ -319,7 +319,6 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
         </div>
 
         {logos.length > 0 && (
-          <div className="hidden xl:flex items-center justify-center mx-auto h-12 gap-5 shrink-0 overflow-hidden">
           <div className="hidden xl:flex items-center justify-center mx-auto h-10 gap-5 shrink-0 overflow-hidden">
             <div className="flex items-center gap-3">
               {logos.map((lg, idx) => (
@@ -398,8 +397,9 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
                 </h2>
                 
                 <div className="px-4 py-2 bg-[#00A86B]/10 rounded-2xl w-full max-w-md mx-auto border border-[#00A86B]/20 shadow-sm flex flex-col justify-center items-center">
-                  <span className="block text-2xl md:text-3xl xl:text-4xl font-black text-[#00A86B] tracking-tight truncate w-full px-2">
+                  <span className="block text-2xl md:text-3xl xl:text-4xl font-black text-[#00A86B] tracking-tight truncate w-full px-2 text-center">
                     {lastCalledPatient.name}
+                  </span>
                 </div>
 
                 {/* Destination banner */}
