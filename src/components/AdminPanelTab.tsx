@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Settings, UserCog, Bed, CalendarClock, Banknote, Pill, Database, Search, Plus, Activity, Edit2, Trash2, User, AlertTriangle, Clock, Upload } from 'lucide-react';
+import { Settings, UserCog, Bed, CalendarClock, Banknote, Pill, Database, Search, Plus, Activity, Edit2, Trash2, User, AlertTriangle, Clock, Upload, Download } from 'lucide-react';
 import { ActionMenu } from './ActionMenu';
 import { SortIcon } from './SortIcon';
 import * as XLSX from 'xlsx';
@@ -46,6 +46,23 @@ export function AdminPanelTab({
 }: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const downloadDrugTemplate = () => {
+    const ws = XLSX.utils.json_to_sheet([
+      {
+        'Nama Obat': 'Paracetamol 500mg',
+        'Satuan': 'Tablet',
+        'Stok': 100,
+        'Harga Beli': 500,
+        'Harga Jual': 1000,
+        'mfg_date': '2023-01-01',
+        'exp_date': '2025-01-01'
+      }
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template Obat');
+    XLSX.writeFile(wb, 'template_obat.xlsx');
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -184,6 +201,13 @@ export function AdminPanelTab({
                     setModalType('drug');
                   }} className="flex items-center gap-2 bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100 dark:shadow-none transition-all">
                   <Plus className="w-3.5 h-3.5" /> Tambah Obat
+                </button>
+                <button
+                  onClick={downloadDrugTemplate}
+                  className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm transition-all"
+                  title="Download Template Excel"
+                >
+                  <Download className="w-3.5 h-3.5" /> Template
                 </button>
                 <input 
                   type="file" 

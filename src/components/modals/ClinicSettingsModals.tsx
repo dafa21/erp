@@ -85,6 +85,9 @@ export function ClinicSettingsModals({
                      <div>
                        <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono mt-2">Sponsor Name / Company Name</label>
                        <input value={clinicForm.sponsor_name} onChange={e => setClinicForm({...clinicForm, sponsor_name: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. PT Mitra Sehat" />
+
+                       <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono mt-4">YouTube TV Link / Livestream Link</label>
+                       <input value={clinicForm.youtube_link} onChange={e => setClinicForm({...clinicForm, youtube_link: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="https://www.youtube.com/watch?v=..." />
                      </div>
                   </div>
                 </div>

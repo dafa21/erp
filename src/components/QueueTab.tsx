@@ -51,7 +51,7 @@ export default function QueueTab({
             </div>
             <div className="p-3 space-y-2.5 overflow-y-auto w-full flex flex-col custom-scrollbar">
               {patientsInfo.filter(p => p.status === 'Menunggu').map(p => (
-                <div key={p.id} className={`bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden ${p.vitals?.triage_level === 'Merah' ? 'border-rose-300 dark:border-rose-900 animate-[pulse_2s_ease-in-out_infinite] shadow-rose-100 dark:shadow-none' : 'border-slate-100 dark:border-slate-700'}`} onClick={() => openPatientProfile(p)}>
+                <div key={p.id} className={`shrink-0 bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden ${p.vitals?.triage_level === 'Merah' ? 'border-rose-300 dark:border-rose-900 animate-[pulse_2s_ease-in-out_infinite] shadow-rose-100 dark:shadow-none' : 'border-slate-100 dark:border-slate-700'}`} onClick={() => openPatientProfile(p)}>
                   {p.vitals?.triage_level === 'Merah' && <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500" />}
                   <div className="flex justify-between items-start mb-2">
                      <h4 className="font-black text-slate-800 dark:text-white text-sm">
@@ -84,7 +84,7 @@ export default function QueueTab({
             </div>
             <div className="p-4 space-y-3 overflow-y-auto w-full flex flex-col custom-scrollbar">
               {patientsInfo.filter(p => p.status === 'Menunggu Dokter' || p.status === 'Diperiksa' || p.status === 'Dalam Pemeriksaan').map(p => (
-                <div key={p.id} className={`bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-md cursor-pointer relative overflow-hidden ${p.vitals?.triage_level === 'Merah' ? 'border-rose-400 dark:border-rose-800 animate-[pulse_2s_ease-in-out_infinite]' : 'border-indigo-200 dark:border-indigo-900'}`} onClick={() => openPatientProfile(p)}>
+                <div key={p.id} className={`shrink-0 bg-white dark:bg-slate-800 p-4 rounded-2xl border shadow-md cursor-pointer relative overflow-hidden ${p.vitals?.triage_level === 'Merah' ? 'border-rose-400 dark:border-rose-800 animate-[pulse_2s_ease-in-out_infinite]' : 'border-indigo-200 dark:border-indigo-900'}`} onClick={() => openPatientProfile(p)}>
                   <div className={`absolute top-0 left-0 w-1.5 h-full ${p.vitals?.triage_level === 'Merah' ? 'bg-rose-500' : 'bg-indigo-500'}`} />
                   <div className="flex justify-between items-start mb-2">
                      <h4 className="font-black text-slate-800 dark:text-white text-sm">
@@ -93,8 +93,8 @@ export default function QueueTab({
                      </h4>
                      <Activity className={`w-3 h-3 animate-pulse ${p.vitals?.triage_level === 'Merah' ? 'text-rose-500' : 'text-indigo-500'}`} />
                   </div>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mb-3">{p.complaint || 'No complaint'}</p>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mt-2">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mb-3 line-clamp-2">{p.complaint || 'No complaint'}</p>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
                      <div className="flex flex-wrap gap-1.5">
                         <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-[10px] font-black rounded-lg uppercase tracking-wider">{p.status === 'Menunggu Dokter' ? 'AWAITING DOCTOR' : 'SOAP ACTIVE'}</span>
                         <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-black rounded-lg uppercase tracking-wider">{p.age} thn</span>
@@ -124,7 +124,7 @@ export default function QueueTab({
             </div>
             <div className="p-4 space-y-3 overflow-y-auto w-full flex flex-col custom-scrollbar">
               {patientsInfo.filter(p => p.status === 'Selesai' && !billingsData.find(b => b.patient_id === p.id)).map(p => (
-                <div key={p.id} className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900 shadow-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-colors" onClick={() => handleProcessBilling(p)}>
+                <div key={p.id} className="shrink-0 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900 shadow-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-950 transition-colors" onClick={() => handleProcessBilling(p)}>
                   <h4 className="font-black text-slate-800 dark:text-white text-sm mb-1">{p.name}</h4>
                   <div className="flex items-center gap-2 mb-3">
                      <Pill className="w-3 h-3 text-emerald-500" />

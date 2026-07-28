@@ -182,6 +182,27 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
     return c ? c.name : 'Cabang Klinik';
   };
 
+  const activeClinic = selectedClinicId === 'all' 
+    ? (clinicsInfo[0] || null) 
+    : clinicsInfo.find(c => c.id === Number(selectedClinicId));
+
+  let logos: string[] = [];
+  if (activeClinic?.sponsor_logo) {
+    try {
+      logos = activeClinic.sponsor_logo.startsWith('[') ? JSON.parse(activeClinic.sponsor_logo) : [activeClinic.sponsor_logo];
+    } catch(e) {
+      logos = [activeClinic.sponsor_logo];
+    }
+  }
+
+  let youtubeUrl = activeClinic?.youtube_link;
+  if (youtubeUrl) {
+    const match = youtubeUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
+    if (match && match[1]) {
+      youtubeUrl = `https://www.youtube.com/embed/${match[1]}?autoplay=1&mute=1&loop=1&playlist=${match[1]}&controls=0&modestbranding=1&rel=0`;
+    }
+  }
+
   // Render the starter unlock card in stunning Light-Theme style
   if (!isUnlocked) {
     return (
@@ -282,10 +303,16 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
               </span>
             </div>
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1.5">
-              {getClinicName()} • MEDIXA MEDICAL NETWORK
+              {getClinicName()} {activeClinic?.sponsor_name ? `• SPONSORED BY ${activeClinic.sponsor_name}` : '• MEDIXA MEDICAL NETWORK'}
             </p>
           </div>
         </div>
+
+        {logos.length > 0 && (
+          <div className="hidden xl:flex items-center justify-center mx-auto h-12">
+            <img src={logos[0]} alt="Sponsor" className="h-full object-contain drop-shadow-sm" />
+          </div>
+        )}
 
         {/* Real-time date time widgets */}
         <div className="flex flex-wrap items-center gap-4">
@@ -363,14 +390,26 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 flex-1 z-10 relative overflow-hidden">
         
         {/* Left Side: Spotlight Large Screen Calling Panel (7 Columns) */}
-        <div className="xl:col-span-7 flex flex-col gap-6 overflow-hidden">
+        <div className="xl:col-span-7 flex flex-col gap-4 overflow-hidden">
           
+          {youtubeUrl && (
+            <div className="w-full aspect-video bg-black rounded-[2.5rem] border border-slate-200/80 shadow-md relative overflow-hidden shrink-0">
+              <iframe 
+                src={youtubeUrl} 
+                className="absolute inset-0 w-full h-full pointer-events-none" 
+                allow="autoplay; encrypted-media" 
+                allowFullScreen
+                frameBorder="0"
+              />
+            </div>
+          )}
+
           {/* Spotlight calling card */}
-          <div className="bg-white rounded-[2.5rem] border-2 border-indigo-50/70 flex-1 flex flex-col justify-center items-center p-8 text-center relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="bg-white rounded-[2.5rem] border-2 border-indigo-50/70 flex-1 flex flex-col justify-center items-center p-6 text-center relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 min-h-[350px]">
             {/* Ambient indicator glowing line */}
             <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-[#00A86B] to-transparent" />
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl opacity-60" />
-            <div className="absolute -bottom-10 -right-10 w-45 h-45 bg-[#00A86B]/5 rounded-full blur-3xl opacity-60" />
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl opacity-60 pointer-events-none" />
+            <div className="absolute -bottom-10 -right-10 w-45 h-45 bg-[#00A86B]/5 rounded-full blur-3xl opacity-60 pointer-events-none" />
             
             <div className="px-5 py-2 bg-indigo-50 text-indigo-650 text-[10.5px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-100/80 mb-8 max-w-max flex items-center gap-2.5 shadow-sm leading-none animate-pulse">
               <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
