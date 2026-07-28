@@ -206,12 +206,8 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
     
     if (videoIds.length > 0) {
       const firstId = videoIds[0];
-      if (videoIds.length > 1) {
-        const playlist = videoIds.slice(1).join(',') + ',' + firstId;
-        youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&loop=1&playlist=${playlist}&controls=1&modestbranding=1&rel=0`;
-      } else {
-        youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&controls=1&modestbranding=1&rel=0`;
-      }
+      const playlist = videoIds.length > 1 ? videoIds.slice(1).join(',') + ',' + firstId : firstId;
+      youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&mute=1&loop=1&playlist=${playlist}&controls=0&modestbranding=1&rel=0`;
     } else {
       youtubeUrl = null;
     }
@@ -297,7 +293,7 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
 
   // Active TV Dashboard Layout after click - Vibrant elegant interactive Light Theme
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-6 md:p-8 flex flex-col relative overflow-hidden select-none">
+    <div className="h-screen bg-slate-50 text-slate-800 font-sans p-6 md:p-8 flex flex-col relative overflow-hidden select-none">
       
       {/* Background patterns */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:6rem_6rem] opacity-45 pointer-events-none" />
@@ -324,14 +320,15 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
 
         {logos.length > 0 && (
           <div className="hidden xl:flex items-center justify-center mx-auto h-12 gap-5 shrink-0 overflow-hidden">
+          <div className="hidden xl:flex items-center justify-center mx-auto h-10 gap-5 shrink-0 overflow-hidden">
             <div className="flex items-center gap-3">
               {logos.map((lg, idx) => (
-                <img key={idx} src={lg} alt={`Sponsor ${idx+1}`} className="h-full max-w-[150px] object-contain drop-shadow-sm" />
+                <img key={idx} src={lg} alt={`Sponsor ${idx+1}`} className="h-full max-w-[120px] object-contain drop-shadow-sm" />
               ))}
               {activeClinic?.sponsor_name && (
-                <div className="flex flex-col justify-center ml-2 border-l-2 border-slate-200 pl-4 h-8">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Supported By</span>
-                  <span className="text-sm font-black text-slate-700 tracking-tight leading-none">{activeClinic.sponsor_name}</span>
+                <div className="px-4 py-2.5 bg-indigo-50/50 rounded-2xl w-full max-w-md mx-auto border border-indigo-100/50 flex flex-col justify-center items-center">
+                  <span className="block text-[8px] xl:text-[9px] font-black uppercase tracking-widest text-indigo-400 mb-0.5">Tujuan Ruangan Klinik</span>
+                  <span className="block text-lg md:text-xl xl:text-2xl font-black text-indigo-950">{activeClinic.sponsor_name}</span>
                 </div>
               )}
             </div>
@@ -339,126 +336,70 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
         )}
 
         {/* Real-time date time widgets */}
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2.5 bg-slate-100/60 p-2.5 rounded-xl border border-slate-200/60">
-            <Calendar className="w-4 h-4 text-indigo-500" />
-            <div className="flex flex-col">
-              <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-wider leading-none">HARI INI</span>
-              <span className="text-xs font-bold text-slate-700 mt-0.5 font-mono leading-none">
-                {currentTime.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 bg-slate-100/60 p-2.5 rounded-xl border border-slate-200/60">
-            <Clock className="w-4 h-4 text-indigo-500" />
-            <div className="flex flex-col">
-              <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-wider leading-none">WAKTU AKTIF</span>
-              <span className="text-xs font-black text-emerald-600 mt-0.5 font-mono tracking-widest leading-none">
-                {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-              </span>
-            </div>
-          </div>
-
-          {/* Soft Refresh Sync Indicator widget */}
-          <div className="flex items-center gap-2.5 bg-slate-100/60 p-2.5 rounded-xl border border-slate-200/60">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-slate-100/60 p-2 rounded-xl border border-slate-200/60">
+            <Calendar className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="text-[10px] font-mono text-slate-700">
+              {currentTime.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
-            <div className="flex flex-col">
-              <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-wider leading-none">AUTO SYNC</span>
-              <span className="text-[10px] font-bold text-slate-600 mt-0.5 font-mono leading-none">
-                {lastUpdated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-              </span>
-            </div>
-            <button 
-              onClick={() => fetchLocalPatients(false)}
-              disabled={isRefreshing}
-              className={`ml-1.5 p-1.5 px-3 text-[9px] font-bold uppercase tracking-widest rounded-lg bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 transition-all flex items-center gap-1.5 cursor-pointer hover:shadow-sm active:scale-95 ${isRefreshing ? 'opacity-80' : ''}`}
-              title="Refresh Antrean"
-            >
-              <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin text-emerald-500' : ''}`} />
-              <span>{isRefreshing ? 'SYNCING' : 'REFRESH'}</span>
-            </button>
+          </div>
+
+          <div className="flex items-center gap-2 bg-slate-100/60 p-2 rounded-xl border border-slate-200/60">
+            <Clock className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="text-[10px] font-black text-emerald-600 font-mono">
+              {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
 
           {/* Controller Operations */}
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setIsMuted(!isMuted)}
-              className={`p-2.5 rounded-xl border transition-all cursor-pointer shadow-sm ${
+              className={`p-2 rounded-xl border transition-all cursor-pointer shadow-sm ${
                 isMuted 
-                  ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100/40' 
-                  : 'bg-indigo-50 border-indigo-150 text-indigo-600 hover:bg-indigo-100/50'
+                  ? 'bg-red-50 border-red-200 text-red-500' 
+                  : 'bg-indigo-50 border-indigo-150 text-indigo-600'
               }`}
-              title={isMuted ? 'Aktifkan Suara' : 'Bisukan Suara'}
             >
-              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 animate-pulse" />}
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
-
-            {onBackToERP && (
-              <button 
-                onClick={onBackToERP}
-                className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 hover:border-slate-300 transition-all cursor-pointer shadow-sm"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Dashboard</span>
-              </button>
-            )}
           </div>
         </div>
       </header>
 
       {/* Main Screen content */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 flex-1 z-10 relative overflow-hidden">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 flex-1 z-10 relative overflow-hidden">
         
         {/* Left Side: Spotlight Large Screen Calling Panel (7 Columns) */}
-        <div className="xl:col-span-7 flex flex-col gap-4 overflow-hidden">
+        <div className="xl:col-span-7 flex flex-col gap-3 overflow-hidden min-h-0">
           
           {youtubeUrl && (
-            <div className="w-full aspect-video bg-black rounded-[2.5rem] border border-slate-200/80 shadow-md relative overflow-hidden shrink-0 group">
+            <div className="w-full h-[25vh] bg-black rounded-[2rem] border border-slate-200/80 shadow-md relative overflow-hidden shrink-0">
               <iframe 
                 src={youtubeUrl} 
-                className="absolute inset-0 w-full h-full" 
+                className="absolute inset-0 w-full h-full pointer-events-none" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen
                 frameBorder="0"
-                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
           )}
 
           {/* Spotlight calling card */}
-          <div className="bg-white rounded-[2.5rem] border-2 border-indigo-50/70 flex-1 flex flex-col justify-center items-center p-6 text-center relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 min-h-[350px]">
-            {/* Ambient indicator glowing line */}
-            <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-[#00A86B] to-transparent" />
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl opacity-60 pointer-events-none" />
-            <div className="absolute -bottom-10 -right-10 w-45 h-45 bg-[#00A86B]/5 rounded-full blur-3xl opacity-60 pointer-events-none" />
-            
-            <div className="px-5 py-2 bg-indigo-50 text-indigo-650 text-[10.5px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-100/80 mb-8 max-w-max flex items-center gap-2.5 shadow-sm leading-none animate-pulse">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-              <span>SEDANG DIPANGGIL • NOW CALLING</span>
+          <div className="bg-white rounded-[2rem] border-2 border-indigo-50/70 flex-1 flex flex-col justify-center items-center p-4 text-center relative overflow-hidden shadow-lg min-h-0">
+            <div className="px-3 py-1 bg-indigo-50 text-indigo-650 text-[9px] font-black uppercase tracking-[0.2em] rounded-full border border-indigo-100 mb-4 animate-pulse">
+              SEDANG DIPANGGIL
             </div>
 
             {lastCalledPatient ? (
-              <div className="space-y-6 w-full animate-in zoom-in-95 duration-300">
-                <div className="space-y-1">
-                  <h2 className="text-7xl md:text-9xl font-black text-indigo-950 tracking-widest font-mono drop-shadow-sm">
-                    {lastCalledPatient.dept.prefix}-{lastCalledPatient.id.toString().slice(-3)}
-                  </h2>
-                  <p className="text-[11px] text-slate-400 font-mono tracking-widest uppercase font-extrabold">
-                    NOMOR REKAM MEDIS: #{lastCalledPatient.rm_number || lastCalledPatient.id.toString().padStart(6, '0')}
-                  </p>
-                </div>
-
-                <div className="space-y-1 bg-slate-50/50 p-4 rounded-3xl border border-slate-100 max-w-lg mx-auto md:shadow-inner">
-                  <h3 className="text-3xl md:text-5xl font-black text-[#00A86B] tracking-tight truncate capitalize px-4">
+              <div className="space-y-3 w-full animate-in zoom-in-95 duration-300 flex flex-col items-center justify-center min-h-0">
+                <h2 className="text-6xl xl:text-7xl font-black text-indigo-950 tracking-widest font-mono leading-none">
+                  {lastCalledPatient.dept.prefix}-{lastCalledPatient.id.toString().slice(-3)}
+                </h2>
+                
+                <div className="px-4 py-2 bg-[#00A86B]/10 rounded-2xl w-full max-w-md mx-auto border border-[#00A86B]/20 shadow-sm flex flex-col justify-center items-center">
+                  <span className="block text-2xl md:text-3xl xl:text-4xl font-black text-[#00A86B] tracking-tight truncate w-full px-2">
                     {lastCalledPatient.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-extrabold tracking-wide mt-2">
-                    Langkah Medis: {lastCalledPatient.age} Thn • Kelamin: {lastCalledPatient.gender}
-                  </p>
                 </div>
 
                 {/* Destination banner */}
