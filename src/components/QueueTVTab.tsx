@@ -207,7 +207,7 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
     if (videoIds.length > 0) {
       const firstId = videoIds[0];
       const playlist = videoIds.length > 1 ? videoIds.slice(1).join(',') + ',' + firstId : firstId;
-      youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&mute=1&loop=1&playlist=${playlist}&controls=0&modestbranding=1&rel=0`;
+      youtubeUrl = `https://www.youtube-nocookie.com/embed/${firstId}?autoplay=1&mute=1&loop=1&playlist=${playlist}&controls=0&modestbranding=1&rel=0&showinfo=0`;
     } else {
       youtubeUrl = null;
     }
@@ -293,13 +293,13 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
 
   // Active TV Dashboard Layout after click - Vibrant elegant interactive Light Theme
   return (
-    <div className="h-screen bg-slate-50 text-slate-800 font-sans p-6 md:p-8 flex flex-col relative overflow-hidden select-none">
+    <div className="h-screen bg-slate-50 text-slate-800 font-sans p-4 flex flex-col relative overflow-hidden select-none">
       
       {/* Background patterns */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:6rem_6rem] opacity-45 pointer-events-none" />
 
       {/* Top Banner Header */}
-      <header className="shrink-0 bg-white border border-slate-200/80 rounded-[2rem] p-5 mb-6 flex flex-col xl:flex-row justify-between items-center gap-4 shadow-sm backdrop-blur-md z-10 relative">
+      <header className="shrink-0 bg-white border border-slate-200/80 rounded-2xl px-5 py-3 mb-3 flex flex-col xl:flex-row justify-between items-center gap-3 shadow-sm backdrop-blur-md z-10 relative">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-[#00A86B]/10 text-[#00A86B] rounded-2xl flex items-center justify-center shadow-sm border border-[#00A86B]/20">
             <Tv className="w-6 h-6" />
@@ -319,15 +319,15 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
         </div>
 
         {logos.length > 0 && (
-          <div className="hidden xl:flex items-center justify-center mx-auto h-10 gap-5 shrink-0 overflow-hidden">
+          <div className="hidden xl:flex items-center justify-center mx-auto h-10 gap-4 shrink-0 overflow-hidden">
             <div className="flex items-center gap-3">
               {logos.map((lg, idx) => (
                 <img key={idx} src={lg} alt={`Sponsor ${idx+1}`} className="h-full max-w-[120px] object-contain drop-shadow-sm" />
               ))}
               {activeClinic?.sponsor_name && (
-                <div className="px-4 py-2.5 bg-indigo-50/50 rounded-2xl w-full max-w-md mx-auto border border-indigo-100/50 flex flex-col justify-center items-center">
-                  <span className="block text-[8px] xl:text-[9px] font-black uppercase tracking-widest text-indigo-400 mb-0.5">Tujuan Ruangan Klinik</span>
-                  <span className="block text-lg md:text-xl xl:text-2xl font-black text-indigo-950">{activeClinic.sponsor_name}</span>
+                <div className="flex flex-col justify-center ml-2 border-l-2 border-slate-200 pl-4 h-8">
+                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Supported By</span>
+                  <span className="text-sm font-black text-slate-700 tracking-tight leading-none">{activeClinic.sponsor_name}</span>
                 </div>
               )}
             </div>
@@ -367,82 +367,79 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
       </header>
 
       {/* Main Screen content */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 flex-1 z-10 relative overflow-hidden">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 flex-1 z-10 relative overflow-hidden min-h-0">
         
         {/* Left Side: Spotlight Large Screen Calling Panel (7 Columns) */}
         <div className="xl:col-span-7 flex flex-col gap-3 overflow-hidden min-h-0">
           
           {youtubeUrl && (
-            <div className="w-full h-[25vh] bg-black rounded-[2rem] border border-slate-200/80 shadow-md relative overflow-hidden shrink-0">
+            <div className="w-full h-[28vh] bg-black rounded-2xl border border-slate-200/80 shadow-md relative overflow-hidden shrink-0">
               <iframe 
                 src={youtubeUrl} 
                 className="absolute inset-0 w-full h-full pointer-events-none" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen
                 frameBorder="0"
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
           )}
 
           {/* Spotlight calling card */}
-          <div className="bg-white rounded-[2rem] border-2 border-indigo-50/70 flex-1 flex flex-col justify-center items-center p-4 text-center relative overflow-hidden shadow-lg min-h-0">
-            <div className="px-3 py-1 bg-indigo-50 text-indigo-650 text-[9px] font-black uppercase tracking-[0.2em] rounded-full border border-indigo-100 mb-4 animate-pulse">
+          <div className="bg-white rounded-2xl border-2 border-indigo-50/70 flex-1 flex flex-col justify-center items-center p-3 text-center relative overflow-hidden shadow-lg min-h-0">
+            <div className="px-3 py-1 bg-indigo-50 text-indigo-700 text-[9px] font-black uppercase tracking-[0.2em] rounded-full border border-indigo-100 mb-2 animate-pulse shrink-0">
               SEDANG DIPANGGIL
             </div>
 
             {lastCalledPatient ? (
-              <div className="space-y-3 w-full animate-in zoom-in-95 duration-300 flex flex-col items-center justify-center min-h-0">
-                <h2 className="text-6xl xl:text-7xl font-black text-indigo-950 tracking-widest font-mono leading-none">
+              <div className="w-full flex flex-col items-center justify-center gap-2 min-h-0 flex-1">
+                <h2 className="text-5xl xl:text-7xl font-black text-indigo-950 tracking-widest font-mono leading-none">
                   {lastCalledPatient.dept.prefix}-{lastCalledPatient.id.toString().slice(-3)}
                 </h2>
                 
-                <div className="px-4 py-2 bg-[#00A86B]/10 rounded-2xl w-full max-w-md mx-auto border border-[#00A86B]/20 shadow-sm flex flex-col justify-center items-center">
-                  <span className="block text-2xl md:text-3xl xl:text-4xl font-black text-[#00A86B] tracking-tight truncate w-full px-2 text-center">
+                <div className="px-4 py-1.5 bg-[#00A86B]/10 rounded-xl max-w-sm mx-auto border border-[#00A86B]/20">
+                  <span className="block text-xl md:text-2xl xl:text-3xl font-black text-[#00A86B] tracking-tight truncate text-center">
                     {lastCalledPatient.name}
                   </span>
                 </div>
 
                 {/* Destination banner */}
-                <div className="max-w-md mx-auto rounded-3xl bg-slate-50 border border-slate-200/80 p-5 mt-6 relative shadow-sm">
-                  <p className="text-[10px] font-extrabold text-[#00A86B] tracking-[0.2em] uppercase">TUJUAN RUANGAN KLINIK</p>
-                  <h4 className="text-2xl font-black text-slate-800 mt-2 font-sans tracking-tight leading-none">
+                <div className="max-w-sm mx-auto rounded-xl bg-slate-50 border border-slate-200/80 px-4 py-2 text-center">
+                  <p className="text-[8px] font-extrabold text-[#00A86B] tracking-[0.2em] uppercase">TUJUAN RUANGAN KLINIK</p>
+                  <h4 className="text-lg font-black text-slate-800 mt-0.5 leading-none">
                     {lastCalledPatient.dept.name}
                   </h4>
-                  <p className="text-xs text-indigo-600 mt-1.5 font-mono uppercase tracking-widest font-extrabold">
+                  <p className="text-[10px] text-indigo-600 mt-0.5 font-mono uppercase tracking-widest font-extrabold">
                     ({lastCalledPatient.dept.room})
                   </p>
                 </div>
 
-                <div className="flex justify-center items-center gap-3 pt-6">
-                  {/* Recall button */}
-                  <button 
-                    onClick={() => announcePatient(lastCalledPatient)}
-                    className="flex items-center gap-2 px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all cursor-pointer shadow-md shadow-indigo-150 active:scale-[0.98]"
-                    title="Panggil Ulang Pasien"
-                  >
-                    <Volume2 className="w-4 h-4 text-white" />
-                    <span>PANGGIL ULANG</span>
-                  </button>
-                </div>
+                <button 
+                  onClick={() => announcePatient(lastCalledPatient)}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md active:scale-[0.98] shrink-0"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>PANGGIL ULANG</span>
+                </button>
               </div>
             ) : (
-              <div className="py-20 text-slate-400 max-w-sm mx-auto flex flex-col justify-center items-center">
-                <Tv className="w-16 h-16 text-slate-300 animate-pulse mb-6" />
+              <div className="text-slate-400 flex flex-col justify-center items-center flex-1">
+                <Tv className="w-12 h-12 text-slate-300 animate-pulse mb-3" />
                 <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest">Belum Ada Panggilan</h3>
-                <p className="text-xs text-slate-400 leading-relaxed mt-2.5 font-medium">
-                  Menunggu petugas klinik memperbarui status tindakan medis pasien untuk melakukan panggilan suara interaktif pertama.
+                <p className="text-[10px] text-slate-400 leading-relaxed mt-1.5 font-medium max-w-xs text-center">
+                  Menunggu petugas klinik memperbarui status pasien.
                 </p>
               </div>
             )}
           </div>
           
           {/* Sub banner widget info */}
-          <div className="bg-white border border-slate-200 p-4.5 rounded-[1.5rem] flex justify-between items-center text-xs shrink-0 shadow-sm">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Engine Suara</span>
-            <div className="flex items-center gap-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${isMuted ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}`} />
-              <span className="text-[10px] uppercase tracking-wider font-black text-slate-600">
-                {isMuted ? 'BISU (MUTED)' : 'AKTIF • TEXT TO SPEECH (BAHASA INDONESIA)'}
+          <div className="bg-white border border-slate-200 px-4 py-2 rounded-xl flex justify-between items-center shrink-0 shadow-sm">
+            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Engine Suara</span>
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isMuted ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}`} />
+              <span className="text-[8px] uppercase tracking-wider font-black text-slate-600">
+                {isMuted ? 'MUTED' : 'AKTIF • TTS INDONESIA'}
               </span>
             </div>
           </div>
@@ -450,18 +447,18 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
         </div>
 
         {/* Right Side: Grid of Departments Monitoring Boards (5 Columns) */}
-        <div className="xl:col-span-5 flex flex-col gap-6 overflow-hidden">
+        <div className="xl:col-span-5 flex flex-col gap-2 overflow-hidden min-h-0">
           
-          <div className="text-xs font-black text-slate-400 tracking-wider flex justify-between items-center px-2 shrink-0">
+          <div className="text-[10px] font-black text-slate-400 tracking-wider flex justify-between items-center px-1 shrink-0">
             <span className="uppercase">DAFTAR AKTIVITAS POLIKLINIK</span>
-            <span className="text-[11px] font-bold text-[#00A86B] bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">{localPatients.length} Pasien Terdaftar</span>
+            <span className="text-[10px] font-bold text-[#00A86B] bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">{localPatients.length} Pasien</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 overflow-y-auto pr-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 overflow-y-auto pr-1 min-h-0">
             
             {/* 1. POLI UMUM */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-5 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
-              <div className="flex justify-between items-center mb-4 shrink-0 border-b border-slate-100 pb-3">
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-3 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
+              <div className="flex justify-between items-center mb-2 shrink-0 border-b border-slate-100 pb-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
                   <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">POLI UMUM</h3>
@@ -509,8 +506,8 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
             </div>
 
             {/* 2. POLI KIA & IBU HAMIL (ANC) */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-5 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
-              <div className="flex justify-between items-center mb-4 shrink-0 border-b border-slate-100 pb-3">
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-3 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
+              <div className="flex justify-between items-center mb-2 shrink-0 border-b border-slate-100 pb-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
                   <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">POLI KIA (ANC)</h3>
@@ -558,8 +555,8 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
             </div>
 
             {/* 3. POLI ANAK & IMPLANT (PEDIATRIK/TUMBUH) */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-5 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
-              <div className="flex justify-between items-center mb-4 shrink-0 border-b border-slate-100 pb-3">
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-3 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
+              <div className="flex justify-between items-center mb-2 shrink-0 border-b border-slate-100 pb-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
                   <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">POLI ANAK</h3>
@@ -607,8 +604,8 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
             </div>
 
             {/* 4. FARMASI & KASIR */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-5 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
-              <div className="flex justify-between items-center mb-4 shrink-0 border-b border-slate-100 pb-3">
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-3 flex flex-col overflow-hidden hover:border-slate-300 transition-all shadow-sm">
+              <div className="flex justify-between items-center mb-2 shrink-0 border-b border-slate-100 pb-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                   <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">FARMASI & KASIR</h3>
