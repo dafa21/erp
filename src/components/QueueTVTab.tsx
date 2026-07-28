@@ -206,8 +206,12 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
     
     if (videoIds.length > 0) {
       const firstId = videoIds[0];
-      const playlist = videoIds.length > 1 ? videoIds.slice(1).join(',') + ',' + firstId : firstId;
-      youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&mute=0&loop=1&playlist=${playlist}&controls=1&modestbranding=1&rel=0`;
+      if (videoIds.length > 1) {
+        const playlist = videoIds.slice(1).join(',') + ',' + firstId;
+        youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&loop=1&playlist=${playlist}&controls=1&modestbranding=1&rel=0`;
+      } else {
+        youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&controls=1&modestbranding=1&rel=0`;
+      }
     } else {
       youtubeUrl = null;
     }
