@@ -197,9 +197,19 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
 
   let youtubeUrl = activeClinic?.youtube_link;
   if (youtubeUrl) {
-    const match = youtubeUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
-    if (match && match[1]) {
-      youtubeUrl = `https://www.youtube.com/embed/${match[1]}?autoplay=1&mute=1&loop=1&playlist=${match[1]}&controls=0&modestbranding=1&rel=0`;
+    const regex = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\s,]+)/g;
+    let match;
+    const videoIds: string[] = [];
+    while ((match = regex.exec(youtubeUrl)) !== null) {
+      if (match[1]) videoIds.push(match[1]);
+    }
+    
+    if (videoIds.length > 0) {
+      const firstId = videoIds[0];
+      const playlist = videoIds.length > 1 ? videoIds.slice(1).join(',') + ',' + firstId : firstId;
+      youtubeUrl = `https://www.youtube.com/embed/${firstId}?autoplay=1&mute=0&loop=1&playlist=${playlist}&controls=1&modestbranding=1&rel=0`;
+    } else {
+      youtubeUrl = null;
     }
   }
 
@@ -309,8 +319,10 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
         </div>
 
         {logos.length > 0 && (
-          <div className="hidden xl:flex items-center justify-center mx-auto h-12">
-            <img src={logos[0]} alt="Sponsor" className="h-full object-contain drop-shadow-sm" />
+          <div className="hidden xl:flex items-center justify-center mx-auto h-12 gap-5 shrink-0 overflow-hidden">
+            {logos.map((lg, idx) => (
+              <img key={idx} src={lg} alt={`Sponsor ${idx+1}`} className="h-full max-w-[150px] object-contain drop-shadow-sm" />
+            ))}
           </div>
         )}
 
