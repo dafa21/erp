@@ -300,10 +300,8 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
 
       {/* Top Banner Header */}
       <header className="shrink-0 bg-white border border-slate-200/80 rounded-2xl px-5 py-3 mb-3 flex flex-col xl:flex-row justify-between items-center gap-3 shadow-sm backdrop-blur-md z-10 relative">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#00A86B]/10 text-[#00A86B] rounded-2xl flex items-center justify-center shadow-sm border border-[#00A86B]/20">
-            <Tv className="w-6 h-6" />
-          </div>
+        <div className="flex items-center gap-3">
+          <img src="/nur.png" alt="Nurhealth" className="w-10 h-10 object-contain" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">MONITOR ANTREAN PASIEN</h1>
@@ -373,14 +371,15 @@ export default function QueueTVTab({ patientsInfo: initialPatientsInfo, clinicsI
         <div className="xl:col-span-7 flex flex-col gap-3 overflow-hidden min-h-0">
           
           {youtubeUrl && (
-            <div className="w-full h-[28vh] bg-black rounded-2xl border border-slate-200/80 shadow-md relative overflow-hidden shrink-0">
+            <div className="w-full h-[35vh] rounded-2xl shadow-md relative overflow-hidden shrink-0">
               <iframe 
                 src={youtubeUrl} 
-                className="absolute inset-0 w-full h-full pointer-events-none" 
+                className="absolute inset-[-10%] w-[120%] h-[120%] pointer-events-none" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen
                 frameBorder="0"
                 referrerPolicy="strict-origin-when-cross-origin"
+                style={{ border: 'none' }}
               />
             </div>
           )}
