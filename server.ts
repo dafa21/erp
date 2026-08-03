@@ -1340,8 +1340,8 @@ Instruksi Utama:
 
   app.post('/api/clinics', async (req, res) => {
     try {
-      const { name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link } = req.body;
-      const insertInfo = db.prepare('INSERT INTO clinics (name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(name, address, phone, status || 'Active', latitude || null, longitude || null, sponsor_logo || null, sponsor_name || null, youtube_link || null);
+      const { name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo } = req.body;
+      const insertInfo = db.prepare('INSERT INTO clinics (name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(name, address, phone, status || 'Active', latitude || null, longitude || null, sponsor_logo || null, sponsor_name || null, youtube_link || null, support_logo || null);
       const newId = insertInfo.lastInsertRowid;
       
       const kasTypes = [

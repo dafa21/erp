@@ -29,7 +29,7 @@ export function ClinicsTab({
           </div>
         </div>
         <button 
-          onClick={() => { setEditingItem(null); setClinicForm({ name: '', address: '', phone: '', status: 'Active', latitude: '', longitude: '', sponsor_logo: '', sponsor_name: '', youtube_link: '' }); setModalType('clinic' as any); }}
+          onClick={() => { setEditingItem(null); setClinicForm({ name: '', address: '', phone: '', status: 'Active', latitude: '', longitude: '', sponsor_logo: '', sponsor_name: '', youtube_link: '', support_logo: '' }); setModalType('clinic' as any); }}
           className="mt-4 sm:mt-0 flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-[10px] transition-all shadow-md uppercase tracking-wider"
         >
           <Plus className="w-3.5 h-3.5" /> Registrasi Baru
@@ -73,7 +73,7 @@ export function ClinicsTab({
                   {
                     label: "Edit Infrastructure",
                     icon: Building2,
-                    onClick: () => { setEditingItem(clinic); setClinicForm({ name: clinic.name, address: clinic.address || '', phone: clinic.phone || '', status: (clinic.status as any), latitude: clinic.latitude || '', longitude: clinic.longitude || '', sponsor_logo: clinic.sponsor_logo || '', sponsor_name: clinic.sponsor_name || '', youtube_link: clinic.youtube_link || '' }); setModalType('clinic' as any); }
+                    onClick: () => { setEditingItem(clinic); setClinicForm({ name: clinic.name, address: clinic.address || '', phone: clinic.phone || '', status: (clinic.status as any), latitude: clinic.latitude || '', longitude: clinic.longitude || '', sponsor_logo: clinic.sponsor_logo || '', sponsor_name: clinic.sponsor_name || '', youtube_link: clinic.youtube_link || '', support_logo: clinic.support_logo || '' }); setModalType('clinic' as any); }
                   },
                   {
                     label: "Hapus Protokol",
