@@ -563,17 +563,24 @@ export function PatientProfileModal({
                                                 if (!canvas) return;
                                                 const imgData = canvas.toDataURL('image/png');
                                                 const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [54, 85.6] });
-                                                doc.rect(0, 0, 54, 85.6, 'F');
                                                 doc.setFillColor(255, 255, 255);
+                                                doc.rect(0, 0, 54, 85.6, 'F');
                                                 
                                                 // Blue header
                                                 doc.setFillColor(37, 99, 235);
                                                 doc.rect(0, 0, 54, 4, 'F');
                                                 
                                                 doc.setFont("helvetica", "bold");
-                                                doc.setFontSize(10);
                                                 doc.setTextColor(30, 41, 59);
                                                 const cName = currentUser?.clinic_name || 'Klinik';
+                                                
+                                                let fontSize = 10;
+                                                doc.setFontSize(fontSize);
+                                                while (doc.getTextWidth(cName.toUpperCase()) > 50 && fontSize > 4) {
+                                                   fontSize -= 0.5;
+                                                   doc.setFontSize(fontSize);
+                                                }
+                                                
                                                 doc.text(cName.toUpperCase(), 27, 12, { align: "center" });
                                                 
                                                 doc.setFontSize(6);

@@ -1885,9 +1885,14 @@ Instruksi Utama:
       }
 
       if (is_child && child_birth_date) {
-        // Register this patient as a child under themselves (or as an independent children entry)
-        await db.prepare(`INSERT INTO patient_children (mother_id, name, gender, birth_date, birth_time, birth_weight, birth_height, apgar_1min, apgar_5min, footprint_captured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-          .run(info.lastInsertRowid, name, gender, child_birth_date, '', '', '', '', '', 0);
+        // Cek jika anak dengan nama dan tanggal lahir ini sudah ada di database untuk mencegah duplikasi (karena terpilih dari Cari Pasien Lama)
+        const existingChild = await db.prepare('SELECT id FROM patient_children WHERE LOWER(name) = LOWER(?) AND birth_date = ?').get(name, child_birth_date);
+        
+        if (!existingChild) {
+          // Register this patient as a child under themselves (or as an independent children entry)
+          await db.prepare(`INSERT INTO patient_children (mother_id, name, gender, birth_date, birth_time, birth_weight, birth_height, apgar_1min, apgar_5min, footprint_captured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+            .run(info.lastInsertRowid, name, gender, child_birth_date, '', '', '', '', '', 0);
+        }
       }
 
       // Handle images if any

@@ -39,8 +39,8 @@ interface ChildGrowthChartProps {
 }
 
 export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkMode }) => {
-  // Kurangi sedikit kriteria WHO untuk menyesuaikan profil anak Indonesia (Kemenkes/KMS Murni)
-  const adjustForIndonesia = (p: number, factor: number) => Number((p * factor).toFixed(1));
+  // Gunakan data baku WHO murni tanpa penyesuaian (KMS standar)
+  const adjustForIndonesia = (p: number, factor: number) => p;
 
   const getWeightData = () => {
     const refData = child.gender === 'Laki-laki' ? WHO_WEIGHT_BOYS : WHO_WEIGHT_GIRLS;
@@ -293,37 +293,59 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
     const refWeightData = child.gender === 'Laki-laki' ? WHO_WEIGHT_BOYS : WHO_WEIGHT_GIRLS;
 
     // Plot P3 (Lower limit)
-    doc.setDrawColor(244, 63, 94); // red
-    doc.setLineWidth(0.25);
-    doc.setLineDashPattern([2, 1.5], 0);
+    doc.setDrawColor(220, 38, 38); // red
+    doc.setLineWidth(0.35);
+    doc.setLineDashPattern([], 0);
     for (let i = 0; i < refWeightData.length - 1; i++) {
       const p1 = refWeightData[i];
       const p2 = refWeightData[i + 1];
       doc.line(getX(p1.age_months), getYWeight(p1.p3), getX(p2.age_months), getYWeight(p2.p3));
     }
-    doc.text('P3', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p3) + 1.2);
+    doc.text('-2 SD', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p3) + 1.2);
+
+    // Plot P15
+    doc.setDrawColor(100, 116, 139); // slate
+    doc.setLineWidth(0.25);
+    doc.setLineDashPattern([], 0);
+    for (let i = 0; i < refWeightData.length - 1; i++) {
+      const p1 = refWeightData[i];
+      const p2 = refWeightData[i + 1];
+      doc.line(getX(p1.age_months), getYWeight(p1.p15), getX(p2.age_months), getYWeight(p2.p15));
+    }
+    doc.text('-1 SD', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p15) + 1.2);
 
     // Plot P50 (Optimal Median)
-    doc.setDrawColor(59, 130, 246); // blue
-    doc.setLineWidth(0.4);
+    doc.setDrawColor(16, 185, 129); // emerald
+    doc.setLineWidth(0.45);
     doc.setLineDashPattern([], 0);
     for (let i = 0; i < refWeightData.length - 1; i++) {
       const p1 = refWeightData[i];
       const p2 = refWeightData[i + 1];
       doc.line(getX(p1.age_months), getYWeight(p1.p50), getX(p2.age_months), getYWeight(p2.p50));
     }
-    doc.text('P50', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p50) + 1.2);
+    doc.text('Median', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p50) + 1.2);
+
+    // Plot P85
+    doc.setDrawColor(245, 158, 11); // amber
+    doc.setLineWidth(0.25);
+    doc.setLineDashPattern([], 0);
+    for (let i = 0; i < refWeightData.length - 1; i++) {
+      const p1 = refWeightData[i];
+      const p2 = refWeightData[i + 1];
+      doc.line(getX(p1.age_months), getYWeight(p1.p85), getX(p2.age_months), getYWeight(p2.p85));
+    }
+    doc.text('+1 SD', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p85) + 1.2);
 
     // Plot P97 (Upper limit)
-    doc.setDrawColor(244, 63, 94);
+    doc.setDrawColor(100, 116, 139); // slate
     doc.setLineWidth(0.25);
-    doc.setLineDashPattern([2, 1.5], 0);
+    doc.setLineDashPattern([], 0);
     for (let i = 0; i < refWeightData.length - 1; i++) {
       const p1 = refWeightData[i];
       const p2 = refWeightData[i + 1];
       doc.line(getX(p1.age_months), getYWeight(p1.p97), getX(p2.age_months), getYWeight(p2.p97));
     }
-    doc.text('P97', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p97) + 1.2);
+    doc.text('+2 SD', getX(24) + 1, getYWeight(refWeightData[refWeightData.length - 1].p97) + 1.2);
 
     // Plot Patient Weight Line
     const validWeightPoints = sortedGrowth.filter(g => g.weight > 0);
@@ -481,37 +503,59 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
     const refHeightData = child.gender === 'Laki-laki' ? WHO_HEIGHT_BOYS : WHO_HEIGHT_GIRLS;
 
     // Plot P3
-    doc.setDrawColor(244, 63, 94);
-    doc.setLineWidth(0.25);
-    doc.setLineDashPattern([2, 1.5], 0);
+    doc.setDrawColor(220, 38, 38); // red
+    doc.setLineWidth(0.35);
+    doc.setLineDashPattern([], 0);
     for (let i = 0; i < refHeightData.length - 1; i++) {
       const p1 = refHeightData[i];
       const p2 = refHeightData[i + 1];
       doc.line(getX(p1.age_months), getYHeight(p1.p3), getX(p2.age_months), getYHeight(p2.p3));
     }
-    doc.text('P3', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p3) + 1.2);
+    doc.text('-2 SD', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p3) + 1.2);
+
+    // Plot P15
+    doc.setDrawColor(100, 116, 139); // slate
+    doc.setLineWidth(0.25);
+    doc.setLineDashPattern([], 0);
+    for (let i = 0; i < refHeightData.length - 1; i++) {
+      const p1 = refHeightData[i];
+      const p2 = refHeightData[i + 1];
+      doc.line(getX(p1.age_months), getYHeight(p1.p15), getX(p2.age_months), getYHeight(p2.p15));
+    }
+    doc.text('-1 SD', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p15) + 1.2);
 
     // Plot P50
     doc.setDrawColor(16, 185, 129); // emerald
-    doc.setLineWidth(0.4);
+    doc.setLineWidth(0.45);
     doc.setLineDashPattern([], 0);
     for (let i = 0; i < refHeightData.length - 1; i++) {
       const p1 = refHeightData[i];
       const p2 = refHeightData[i + 1];
       doc.line(getX(p1.age_months), getYHeight(p1.p50), getX(p2.age_months), getYHeight(p2.p50));
     }
-    doc.text('P50', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p50) + 1.2);
+    doc.text('Median', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p50) + 1.2);
+
+    // Plot P85
+    doc.setDrawColor(245, 158, 11); // amber
+    doc.setLineWidth(0.25);
+    doc.setLineDashPattern([], 0);
+    for (let i = 0; i < refHeightData.length - 1; i++) {
+      const p1 = refHeightData[i];
+      const p2 = refHeightData[i + 1];
+      doc.line(getX(p1.age_months), getYHeight(p1.p85), getX(p2.age_months), getYHeight(p2.p85));
+    }
+    doc.text('+1 SD', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p85) + 1.2);
 
     // Plot P97
-    doc.setDrawColor(244, 63, 94);
+    doc.setDrawColor(100, 116, 139); // slate
     doc.setLineWidth(0.25);
-    doc.setLineDashPattern([2, 1.5], 0);
+    doc.setLineDashPattern([], 0);
     for (let i = 0; i < refHeightData.length - 1; i++) {
       const p1 = refHeightData[i];
       const p2 = refHeightData[i + 1];
       doc.line(getX(p1.age_months), getYHeight(p1.p97), getX(p2.age_months), getYHeight(p2.p97));
     }
-    doc.text('P97', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p97) + 1.2);
+    doc.text('+2 SD', getX(24) + 1, getYHeight(refHeightData[refHeightData.length - 1].p97) + 1.2);
 
     // Plot Patient Height Curve
     const validHeightPoints = sortedGrowth.filter(g => g.height > 0);
@@ -692,7 +736,7 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#ef4444" : "#dc2626"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Garis Merah Bawah (P3)" 
+                  name="Garis Merah Bawah (-2 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                   animationDuration={1000}
@@ -700,10 +744,10 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                 <Line 
                   type="monotone" 
                   dataKey="p15" 
-                  stroke={darkMode ? "#fbbf24" : "#f59e0b"} 
+                  stroke={darkMode ? "#64748b" : "#334155"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Peringatan Bawah (P15)" 
+                  name="Peringatan Bawah (-1 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
@@ -713,7 +757,7 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#10b981" : "#059669"} 
                   strokeWidth={3} 
                   dot={false} 
-                  name="Ideal (P50)" 
+                  name="Ideal (Median)" 
                   opacity={0.9} 
                   isAnimationActive={true}
                 />
@@ -723,17 +767,17 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#fbbf24" : "#f59e0b"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Peringatan Atas (P85)" 
+                  name="Peringatan Atas (+1 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="p97" 
-                  stroke={darkMode ? "#ef4444" : "#dc2626"} 
+                  stroke={darkMode ? "#64748b" : "#334155"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Garis Merah Atas (P97)" 
+                  name="Garis Hitam Atas (+2 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
@@ -813,7 +857,7 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#ef4444" : "#dc2626"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Garis Merah Bawah (P3)" 
+                  name="Garis Merah Bawah (-2 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                   animationDuration={1000}
@@ -821,10 +865,10 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                 <Line 
                   type="monotone" 
                   dataKey="p15" 
-                  stroke={darkMode ? "#fbbf24" : "#f59e0b"} 
+                  stroke={darkMode ? "#64748b" : "#334155"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Peringatan Bawah (P15)" 
+                  name="Peringatan Bawah (-1 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
@@ -834,7 +878,7 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#10b981" : "#059669"} 
                   strokeWidth={3} 
                   dot={false} 
-                  name="Ideal (P50)" 
+                  name="Ideal (Median)" 
                   opacity={0.9} 
                   isAnimationActive={true}
                 />
@@ -844,17 +888,17 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#fbbf24" : "#f59e0b"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Peringatan Atas (P85)" 
+                  name="Peringatan Atas (+1 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="p97" 
-                  stroke={darkMode ? "#ef4444" : "#dc2626"} 
+                  stroke={darkMode ? "#64748b" : "#334155"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Garis Merah Atas (P97)" 
+                  name="Garis Hitam Atas (+2 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
@@ -934,7 +978,7 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#ef4444" : "#dc2626"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Garis Merah Bawah (P3)" 
+                  name="Garis Merah Bawah (-2 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                   animationDuration={1000}
@@ -942,10 +986,10 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                 <Line 
                   type="monotone" 
                   dataKey="p15" 
-                  stroke={darkMode ? "#fbbf24" : "#f59e0b"} 
+                  stroke={darkMode ? "#64748b" : "#334155"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Peringatan Bawah (P15)" 
+                  name="Peringatan Bawah (-1 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
@@ -955,7 +999,7 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#10b981" : "#059669"} 
                   strokeWidth={3} 
                   dot={false} 
-                  name="Ideal (P50)" 
+                  name="Ideal (Median)" 
                   opacity={0.9} 
                   isAnimationActive={true}
                 />
@@ -965,17 +1009,17 @@ export const ChildGrowthChart: React.FC<ChildGrowthChartProps> = ({ child, darkM
                   stroke={darkMode ? "#fbbf24" : "#f59e0b"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Peringatan Atas (P85)" 
+                  name="Peringatan Atas (+1 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="p97" 
-                  stroke={darkMode ? "#ef4444" : "#dc2626"} 
+                  stroke={darkMode ? "#64748b" : "#334155"} 
                   strokeWidth={2} 
                   dot={false} 
-                  name="Garis Merah Atas (P97)" 
+                  name="Garis Hitam Atas (+2 SD)" 
                   opacity={0.8} 
                   isAnimationActive={true}
                 />

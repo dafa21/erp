@@ -5150,59 +5150,129 @@ export default function App() {
                       
                       {innerPatientSearch.length >= 2 && (
                         <div className="mt-2 bg-white dark:bg-slate-800 border border-blue-100 dark:border-blue-900/30 rounded-lg shadow-sm max-h-[150px] overflow-y-auto divide-y divide-slate-50 dark:divide-slate-700 custom-scrollbar">
-                          {groupedPatients
-                            .filter(p => 
-                              p.name.toLowerCase().includes(innerPatientSearch.toLowerCase()) || 
-                              (p.rm_number && p.rm_number.toLowerCase().includes(innerPatientSearch.toLowerCase())) ||
-                              p.id.toString().includes(innerPatientSearch)
-                            )
-                            .slice(0, 5)
-                            .map(p => (
-                              <button 
-                                key={p.id}
-                                type="button"
-                                onClick={() => {
-                                  setPatientForm({
-                                    rm_number: p.rm_number || p.id.toString().padStart(6, '0'),
-                                    name: p.name,
-                                    age: p.age,
-                                    gender: p.gender,
-                                    address: p.address || '',
-                                    phone: p.phone || '',
-                                    complaint: '',
-                                    status: 'Menunggu',
-                                    allergies: p.allergies || '',
-                                    fall_risk: p.fall_risk || 'Rendah',
-                                    is_pregnant: !!p.is_pregnant
-                                  });
-                                  if (p.anc) {
-                                    const existingHpht = p.anc.hpht || '';
-                                    setAncForm({
-                                      hpht: existingHpht,
-                                      gestational_age: existingHpht ? calculateGestationalAge(existingHpht) : (p.anc.gestational_age || ''),
-                                      estimated_delivery_date: existingHpht ? calculateHPL(existingHpht) : (p.anc.estimated_delivery_date || ''),
-                                      tfu: '', leopold_1: '', leopold_2: '', leopold_3: '', leopold_4: '', djj: '', poedji_rochjati_score: '', fetal_development: '', next_checkup_date: '', usg_bpd: '', usg_hc: '', usg_ac: '', usg_fl: '', usg_tbj: '', usg_afi: '', usg_placenta: '', usg_presentation: '', usg_image: '', usg_image_notes: ''
+                          {(() => {
+                            const term = innerPatientSearch.toLowerCase();
+                            
+                            // 1. Cari di groupedPatients (Pasien Umum)
+                            const matchedPatients = groupedPatients
+                              .filter(p => 
+                                p.name.toLowerCase().includes(term) || 
+                                (p.rm_number && p.rm_number.toLowerCase().includes(term)) ||
+                                p.id.toString().includes(term)
+                              ).map(p => ({
+                                type: 'patient',
+                                id: p.id,
+                                data: p
+                              }));
+                              
+                            // 2. Cari di allChildren (Bayi & Anak)
+                            const matchedChildren = allChildren
+                              .filter(c => 
+                                c.name.toLowerCase().includes(term) ||
+                                (c.mother_rm && c.mother_rm.toLowerCase().includes(term))
+                              ).map(c => ({
+                                type: 'child',
+                                id: `child-${c.id}`,
+                                data: c
+                              }));
+                              
+                            const combined = [...matchedPatients, ...matchedChildren].slice(0, 5);
+                            
+                            if (combined.length === 0) {
+                              return <div className="p-3 text-[10px] text-slate-400 dark:text-slate-600 text-center italic">Pasien/Anak tidak ditemukan. Lanjutkan input baru di bawah.</div>;
+                            }
+                            
+                            return combined.map(item => {
+                              const isChild = item.type === 'child';
+                              const p = item.data;
+                              
+                              if (isChild) {
+                                const mother = groupedPatients.find(g => g.id === p.mother_id);
+                                const calculateAge = (dob: string) => {
+                                  if (!dob) return 0;
+                                  const diff = Date.now() - new Date(dob).getTime();
+                                  return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+                                };
+                                
+                                return (
+                                  <button 
+                                    key={item.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setPatientForm({
+                                        rm_number: p.mother_rm + '-A', // Menandakan RM Anak dari RM Ibu
+                                        name: p.name,
+                                        age: calculateAge(p.birth_date),
+                                        gender: p.gender,
+                                        address: mother?.address || '',
+                                        phone: mother?.phone || '',
+                                        complaint: '',
+                                        status: 'Menunggu',
+                                        allergies: '',
+                                        fall_risk: 'Rendah',
+                                        is_pregnant: false,
+                                        is_child: true,
+                                        child_birth_date: p.birth_date
+                                      });
+                                      setIsNewVisit(true);
+                                      setInnerPatientSearch('');
+                                    }}
+                                    className="w-full text-left px-3 py-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors flex justify-between items-center"
+                                  >
+                                    <div>
+                                      <div className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1">
+                                        <Baby className="w-3.5 h-3.5 text-emerald-500" /> {p.name}
+                                      </div>
+                                      <div className="text-[10px] text-slate-500 dark:text-slate-500 font-mono mt-0.5">Ibu: {p.mother_name} (RM: #{p.mother_rm})</div>
+                                    </div>
+                                    <div className="text-[10px] bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-bold">Pilih Anak</div>
+                                  </button>
+                                );
+                              }
+                              
+                              return (
+                                <button 
+                                  key={item.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setPatientForm({
+                                      rm_number: p.rm_number || p.id.toString().padStart(6, '0'),
+                                      name: p.name,
+                                      age: p.age,
+                                      gender: p.gender,
+                                      address: p.address || '',
+                                      phone: p.phone || '',
+                                      complaint: '',
+                                      status: 'Menunggu',
+                                      allergies: p.allergies || '',
+                                      fall_risk: p.fall_risk || 'Rendah',
+                                      is_pregnant: !!p.is_pregnant,
+                                      is_child: !!p.is_child,
+                                      child_birth_date: p.child_birth_date || ''
                                     });
-                                  }
-                                  setIsNewVisit(true);
-                                  setInnerPatientSearch('');
-                                }}
-                                className="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors flex justify-between items-center"
-                              >
-                                <div>
-                                  <div className="text-xs font-bold text-slate-800 dark:text-slate-100">{p.name}</div>
-                                  <div className="text-[10px] text-slate-500 dark:text-slate-500 font-mono">RM: #{p.rm_number || p.id.toString().padStart(6, '0')} • {p.age} Thn</div>
-                                </div>
-                                <div className="text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full font-bold">Pilih</div>
-                              </button>
-                            ))
-                          }
-                          {groupedPatients.filter(p => 
-                            p.name.toLowerCase().includes(innerPatientSearch.toLowerCase()) || 
-                            (p.rm_number && p.rm_number.toLowerCase().includes(innerPatientSearch.toLowerCase()))
-                          ).length === 0 && (
-                            <div className="p-3 text-[10px] text-slate-400 dark:text-slate-600 text-center italic">Pasien tidak ditemukan. Lanjutkan input baru di bawah.</div>
-                          )}
+                                    if (p.anc) {
+                                      const existingHpht = p.anc.hpht || '';
+                                      setAncForm({
+                                        hpht: existingHpht,
+                                        gestational_age: existingHpht ? calculateGestationalAge(existingHpht) : (p.anc.gestational_age || ''),
+                                        estimated_delivery_date: existingHpht ? calculateHPL(existingHpht) : (p.anc.estimated_delivery_date || ''),
+                                        tfu: '', leopold_1: '', leopold_2: '', leopold_3: '', leopold_4: '', djj: '', poedji_rochjati_score: '', fetal_development: '', next_checkup_date: '', usg_bpd: '', usg_hc: '', usg_ac: '', usg_fl: '', usg_tbj: '', usg_afi: '', usg_placenta: '', usg_presentation: '', usg_image: '', usg_image_notes: ''
+                                      });
+                                    }
+                                    setIsNewVisit(true);
+                                    setInnerPatientSearch('');
+                                  }}
+                                  className="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors flex justify-between items-center"
+                                >
+                                  <div>
+                                    <div className="text-xs font-bold text-slate-800 dark:text-slate-100">{p.name}</div>
+                                    <div className="text-[10px] text-slate-500 dark:text-slate-500 font-mono mt-0.5">RM: #{p.rm_number || p.id.toString().padStart(6, '0')} • {p.age} Thn</div>
+                                  </div>
+                                  <div className="text-[10px] bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full font-bold">Pilih</div>
+                                </button>
+                              );
+                            });
+                          })()}
                         </div>
                       )}
                     </div>
