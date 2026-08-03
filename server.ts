@@ -1311,6 +1311,8 @@ Instruksi Utama:
           longitude: clinic.longitude,
           sponsor_name: clinic.sponsor_name,
           sponsor_logo: clinic.sponsor_logo,
+          support_logo: clinic.support_logo,
+          youtube_link: clinic.youtube_link,
           patientCount: clinicPatients.length,
           revenue: revenue,
           patients: clinicPatients
