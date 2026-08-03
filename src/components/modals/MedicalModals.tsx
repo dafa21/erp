@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 function VitalInputField({ label, unit, icon: Icon, required, type, step, value, onChange, placeholder, min, max, className }: any) {
   return (
     <div className={className}>
-      <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1"><Icon className="w-3.5 h-3.5 text-indigo-400" /> {label}</label>
+      <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+        {Icon && <Icon className="w-3.5 h-3.5 text-indigo-400" />} {label}
+      </label>
       <div className="relative flex items-center">
         <input required={required} type={type || 'text'} step={step} min={min} max={max} value={value} onChange={e => onChange(e.target.value)} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono shadow-inner" placeholder={placeholder} />
         {unit && <span className="absolute right-3 text-[10px] font-bold text-slate-400">{unit}</span>}
