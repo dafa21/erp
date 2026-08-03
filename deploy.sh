@@ -75,15 +75,15 @@ fi
 APP_DIR=$(pwd)
 
 # Reset PM2 processes (hapus both sim-nurhealth dan test-app untuk hindari konflik)
-npx pm2 delete test-app 2>/dev/null || true
-npx pm2 delete sim-nurhealth 2>/dev/null || true
+pm2 delete test-app 2>/dev/null || true
+pm2 delete sim-nurhealth 2>/dev/null || true
 
 # Start application menggunakan konfigurasi ecosystem
 echo "🚀 Memulai aplikasi via PM2 ecosystem.config.cjs..."
-npx pm2 start "$APP_DIR/ecosystem.config.cjs"
+pm2 start "$APP_DIR/ecosystem.config.cjs"
 
 # Simpan konfigurasi PM2 agar auto-start saat reboot
-npx pm2 save
+pm2 save
 
 echo "--------------------------------------------------------"
 echo "✅ DEPLOYMENT BERHASIL!"
@@ -96,6 +96,6 @@ echo "2. sudo apt install certbot python3-certbot-nginx -y"
 echo "3. sudo certbot --nginx -d $DOMAIN"
 echo "--------------------------------------------------------"
 echo "💡 CEK STATUS:"
-echo "npx pm2 list"
-echo "npx pm2 logs sim-nurhealth"
+echo "pm2 list"
+echo "pm2 logs sim-nurhealth"
 echo "--------------------------------------------------------"
