@@ -16,12 +16,13 @@ export function ClinicSettingsModals({
     <>
       {modalType === 'clinic' as any && (
           <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all">
-              <div className="flex justify-between items-center p-6 border-b border-indigo-100 dark:border-indigo-900/20 bg-indigo-600 dark:bg-indigo-900 text-white">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all flex flex-col max-h-[90vh]">
+              <div className="flex justify-between items-center p-6 border-b border-indigo-100 dark:border-indigo-900/20 bg-indigo-600 dark:bg-indigo-900 text-white shrink-0">
                 <h3 className="font-black uppercase tracking-widest text-sm">{editingItem ? 'Edit Infrastructure Protocol' : 'Initialize New Clinic Network'}</h3>
-                <button onClick={() => setModalType('none')} className="text-white hover:text-indigo-200 transition-colors focus:outline-none"><X className="w-5 h-5" /></button>
+                <button type="button" onClick={() => setModalType('none')} className="text-white hover:text-indigo-200 transition-colors focus:outline-none"><X className="w-5 h-5" /></button>
               </div>
-              <form onSubmit={saveClinic} className="p-8 space-y-6">
+              <form onSubmit={saveClinic} className="flex flex-col overflow-hidden flex-grow">
+                <div className="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar">
                 <div>
                   <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Clinic Designation</label>
                   <input required value={clinicForm.name} onChange={e => setClinicForm({...clinicForm, name: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="Enter clinical label..." />
@@ -88,13 +89,63 @@ export function ClinicSettingsModals({
 
                        <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono mt-4">YouTube TV Link / Livestream Link</label>
                        <input value={clinicForm.youtube_link} onChange={e => setClinicForm({...clinicForm, youtube_link: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="https://www.youtube.com/watch?v=..." />
+
+                       <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono mt-4">Support & Kerjasama Logo</label>
+                       <div className="flex flex-col gap-4">
+                         <div className="flex flex-wrap items-center gap-4">
+                            {(() => {
+                                let parsedSupport = [];
+                                try {
+                                  if (clinicForm.support_logo) {
+                                      parsedSupport = clinicForm.support_logo.startsWith('[') ? JSON.parse(clinicForm.support_logo) : [clinicForm.support_logo];
+                                  }
+                                } catch(e) {}
+                                return parsedSupport.map((lg: string, idx: number) => (
+                                    <div key={idx} className="relative w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0 bg-transparent">
+                                      <img src={lg} alt="Support Logo" className="w-full h-full object-contain p-1 mix-blend-multiply dark:mix-blend-normal" />
+                                      <button type="button" onClick={() => {
+                                          const next = [...parsedSupport];
+                                          next.splice(idx, 1);
+                                          setClinicForm({...clinicForm, support_logo: next.length ? JSON.stringify(next) : ''});
+                                      }} className="absolute top-0 right-0 bg-rose-500 text-white rounded-bl-lg p-0.5"><X className="w-3 h-3"/></button>
+                                    </div>
+                                ));
+                            })()}
+                            <label className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-xs font-bold cursor-pointer transition-colors border border-slate-200 dark:border-slate-700">
+                               <Upload className="w-3.5 h-3.5" /> Upload Image
+                               <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    if (file.size > 2 * 1024 * 1024) { 
+                                      alert('Ukuran file maksimal 2MB.');
+                                      return;
+                                    }
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                       let existing: any[] = [];
+                                       try {
+                                           if (clinicForm.support_logo) {
+                                               if (clinicForm.support_logo.startsWith('[')) existing = JSON.parse(clinicForm.support_logo);
+                                               else existing = [clinicForm.support_logo];
+                                           }
+                                       } catch(e) {}
+                                       existing.push(reader.result);
+                                       setClinicForm({ ...clinicForm, support_logo: JSON.stringify(existing) });
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                               }} />
+                            </label>
+                         </div>
+                       </div>
                      </div>
                   </div>
                 </div>
+                </div>
 
-                <div className="pt-6 flex justify-end gap-3 border-t dark:border-slate-800 mt-4">
-                  <button type="button" onClick={() => setModalType('none')} className="px-6 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-xs font-black text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-slate-400 uppercase tracking-widest transition-all">Abort</button>
-                  <button type="submit" className="px-8 py-3 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 rounded-2xl text-xs font-black text-white uppercase tracking-widest shadow-xl shadow-slate-100 dark:shadow-none transition-all">Synchronize Entry</button>
+                <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex justify-end gap-3 shrink-0">
+                  <button type="button" onClick={() => setModalType('none')} className="px-6 py-2.5 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-black text-slate-500 hover:bg-white dark:hover:bg-slate-800 dark:text-slate-400 uppercase tracking-widest transition-all shadow-sm bg-white dark:bg-slate-800">Abort</button>
+                  <button type="submit" className="px-8 py-2.5 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 rounded-xl text-xs font-black text-white uppercase tracking-widest shadow-lg shadow-slate-200 dark:shadow-none transition-all">Synchronize Entry</button>
                 </div>
               </form>
             </div>

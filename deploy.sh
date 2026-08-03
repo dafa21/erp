@@ -74,8 +74,7 @@ fi
 
 APP_DIR=$(pwd)
 
-# Reset PM2 processes (hapus both sim-nurhealth dan test-app untuk hindari konflik)
-pm2 delete test-app 2>/dev/null || true
+# Reset PM2 processes (hapus sim-nurhealth lama untuk restart)
 pm2 delete sim-nurhealth 2>/dev/null || true
 
 # Start application menggunakan konfigurasi ecosystem

@@ -660,7 +660,7 @@ export default function App() {
   const [patientProfileTab, setPatientProfileTab] = useState<'soap'|'vital'|'resep'|'anc'|'billing'|'lab'|'qrcard'|'referral'>('soap');
 
   // Form states
-  const [clinicForm, setClinicForm] = useState({ name: '', address: '', phone: '', status: 'Active', latitude: '', longitude: '', sponsor_logo: '', sponsor_name: '', youtube_link: '' });
+  const [clinicForm, setClinicForm] = useState({ name: '', address: '', phone: '', status: 'Active', latitude: '', longitude: '', sponsor_logo: '', sponsor_name: '', youtube_link: '', support_logo: '' });
   const [userForm, setUserForm] = useState({ username: '', password: '', name: '', role: 'Suster', clinic_id: '', status: 'Active', phone: '' });
   const [whatsappPrompt, setWhatsappPrompt] = useState<{
     show: boolean;
@@ -5542,6 +5542,27 @@ export default function App() {
         historyVisitFilter={historyVisitFilter}
         setHistoryVisitFilter={setHistoryVisitFilter}
         billingsData={billingsData}
+      />
+
+      <ChildrenModals
+        modalType={modalType}
+        setModalType={setModalType as any}
+        editingItem={editingItem}
+        selectedChild={selectedChild}
+        setSelectedChild={setSelectedChild as any}
+        childForm={childForm}
+        setChildForm={setChildForm}
+        saveChild={saveChild}
+        immunizationForm={immunizationForm}
+        setImmunizationForm={setImmunizationForm}
+        saveImmunization={saveImmunization}
+        growthForm={growthForm}
+        setGrowthForm={setGrowthForm}
+        saveGrowth={saveGrowth}
+        darkMode={darkMode}
+        currentUser={currentUser}
+        getChildImmunizationStatus={getChildImmunizationStatus}
+        openNewChildModal={openNewChildModal}
       />
       </main>
       </div>
