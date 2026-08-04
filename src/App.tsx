@@ -4185,7 +4185,6 @@ export default function App() {
         )}
 
         {hasMenuAccess('doctorDashboard', ['Superadmin', 'Dokter', 'Bidan']) && (
-          <>
             <button 
               onClick={() => { setActiveTab('doctorDashboard'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'doctorDashboard' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4193,6 +4192,9 @@ export default function App() {
               <Activity className={`w-4 h-4 ${activeTab === 'doctorDashboard' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
               <span>Dashboard Dokter</span>
             </button>
+        )}
+
+        {hasMenuAccess('doctorSOAP', ['Superadmin', 'Dokter', 'Bidan', 'Suster']) && (
             <button 
               onClick={() => { setActiveTab('doctorSOAP'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'doctorSOAP' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4206,7 +4208,6 @@ export default function App() {
                 {notificationCounts.soapNormal > 0 && <span className="bg-indigo-500 text-white rounded-full px-1.5 py-0.5 text-[9px] font-bold">{notificationCounts.soapNormal}</span>}
               </div>
             </button>
-          </>
         )}
 
         {hasMenuAccess('anc', ['Superadmin', 'Admin', 'Bidan']) && (
@@ -4354,7 +4355,6 @@ export default function App() {
             </button>
 
             {hasMenuAccess('clinics', ['Superadmin']) && (
-                <>
                   <button 
                     onClick={() => { setActiveTab('clinics'); setIsMobileMenuOpen(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'clinics' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4362,6 +4362,9 @@ export default function App() {
                   <Building2 className={`w-4 h-4 ${activeTab === 'clinics' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
                   <span>Manajemen Klinik</span>
                 </button>
+            )}
+
+            {hasMenuAccess('lpj', ['Superadmin', 'Admin']) && (
                 <button 
                   onClick={() => { setActiveTab('lpj'); setIsMobileMenuOpen(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'lpj' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4369,6 +4372,9 @@ export default function App() {
                   <FileText className={`w-4 h-4 ${activeTab === 'lpj' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
                   <span>LPJ Klinik</span>
                 </button>
+            )}
+
+            {hasMenuAccess('inventory', ['Superadmin', 'Admin', 'Apoteker']) && (
                 <button 
                   onClick={() => { setActiveTab('inventory'); setIsMobileMenuOpen(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'inventory' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4376,6 +4382,9 @@ export default function App() {
                   <PackageOpen className={`w-4 h-4 ${activeTab === 'inventory' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
                   <span>Inventaris Klinik</span>
                 </button>
+            )}
+
+            {hasMenuAccess('attendance', ['Superadmin', 'Admin']) && (
                 <button 
                   onClick={() => { setActiveTab('attendance'); setIsMobileMenuOpen(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'attendance' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-[#00A86B] dark:hover:text-white border border-transparent'}`}
@@ -4383,7 +4392,6 @@ export default function App() {
                   <CalendarDays className={`w-4 h-4 ${activeTab === 'attendance' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
                   <span>Riwayat Absensi</span>
                 </button>
-              </>
             )}
 
             {hasMenuAccess('map', ['Superadmin']) && (
