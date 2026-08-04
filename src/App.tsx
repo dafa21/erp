@@ -4138,6 +4138,7 @@ export default function App() {
            <p className="text-[9px] font-bold uppercase tracking-widest text-[#00A86B] dark:text-[#00A86B] mb-1">Operasional Klinik</p>
         </div>
 
+        {hasMenuAccess('dashboard', ['Superadmin', 'Admin', 'Dokter', 'Suster', 'Bidan', 'Laboran', 'Apoteker', 'Kasir']) && (
         <button 
           onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
           className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'dashboard' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4145,7 +4146,9 @@ export default function App() {
           <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
           <span>Live Dashboard</span>
         </button>
+        )}
 
+        {hasMenuAccess('queue', ['Superadmin', 'Admin', 'Dokter', 'Suster', 'Bidan', 'Kasir']) && (
         <button 
           onClick={() => { setActiveTab('queue'); setIsMobileMenuOpen(false); }}
           className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'queue' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4156,7 +4159,9 @@ export default function App() {
           </div>
           {notificationCounts.queue > 0 && <span className="bg-indigo-500 text-white rounded-full px-1.5 py-0.5 text-[9px] font-bold">{notificationCounts.queue}</span>}
         </button>
+        )}
 
+        {hasMenuAccess('appointments', ['Superadmin', 'Admin', 'Suster', 'Bidan']) && (
         <button 
           onClick={() => { setActiveTab('appointments'); setIsMobileMenuOpen(false); }}
           className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'appointments' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4164,6 +4169,7 @@ export default function App() {
           <CalendarDays className={`w-4 h-4 ${activeTab === 'appointments' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
           <span>Jadwal & Janji Temu</span>
         </button>
+        )}
 
         {hasMenuAccess('patients', ['Superadmin', 'Admin', 'Suster', 'Bidan']) && (
           <button 
@@ -4223,6 +4229,7 @@ export default function App() {
           </button>
         )}
 
+        {hasMenuAccess('lis', ['Superadmin', 'Admin', 'Dokter', 'Suster', 'Bidan', 'Laboran']) && (
         <button 
           onClick={() => { setActiveTab('lis'); setIsMobileMenuOpen(false); }}
           className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'lis' ? 'bg-orange-50 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 shadow-sm border border-orange-100 dark:border-orange-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4233,7 +4240,9 @@ export default function App() {
           </div>
           {notificationCounts.lab > 0 && <span className="bg-orange-500 text-white rounded-full px-1.5 py-0.5 text-[9px] font-bold">{notificationCounts.lab}</span>}
         </button>
+        )}
         
+        {hasMenuAccess('billing', ['Superadmin', 'Admin', 'Kasir']) && (
         <button 
           onClick={() => { setActiveTab('billing'); setIsMobileMenuOpen(false); }}
           className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'billing' ? 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 shadow-sm border border-emerald-100 dark:border-emerald-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4244,11 +4253,13 @@ export default function App() {
           </div>
           {notificationCounts.billing > 0 && <span className="bg-emerald-500 text-white rounded-full px-1.5 py-0.5 text-[9px] font-bold">{notificationCounts.billing}</span>}
         </button>
+        )}
         
         <div className="px-3 pt-4 pb-2">
            <p className="text-[9px] font-bold uppercase tracking-widest text-[#00A86B] dark:text-[#00A86B] mb-1">Manajemen & Laporan</p>
         </div>
         
+        {hasMenuAccess('reports', ['Superadmin', 'Admin']) && (
         <button 
           onClick={() => { setActiveTab('reports'); setIsMobileMenuOpen(false); }}
           className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'reports' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4256,7 +4267,9 @@ export default function App() {
           <BarChart3 className={`w-4 h-4 ${activeTab === 'reports' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
           <span>Laporan Strategis</span>
         </button>
+        )}
 
+        {hasMenuAccess('accounting', ['Superadmin', 'Admin']) && (
         <div className="space-y-1">
           <button 
             onClick={() => { 
@@ -4320,8 +4333,8 @@ export default function App() {
             </div>
           )}
         </div>
-
-
+        )}
+        
         {hasMenuAccess('patientDatabase', ['Superadmin', 'Admin']) && (
               <>
               <button 
@@ -4375,61 +4388,69 @@ export default function App() {
 
             {hasMenuAccess('map', ['Superadmin']) && (
                 <button 
-                  onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'map' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
-              >
-                <MapPin className={`w-4 h-4 ${activeTab === 'map' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-                <span>Peta Sebaran</span>
-              </button>
+              onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'map' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
+            >
+              <MapPin className={`w-4 h-4 ${activeTab === 'map' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+              <span>Peta Sebaran</span>
+            </button>
             )}
 
-            <div className="px-3 pt-4 pb-2">
-               <p className="text-[9px] font-bold uppercase tracking-widest text-[#00A86B] dark:text-[#00A86B] mb-1">Pengaturan Sistem</p>
-            </div>
+            {hasMenuAccess('adminPanel', ['Superadmin', 'Admin']) && (
+              <>
+                <div className="px-3 pt-4 pb-2">
+                   <p className="text-[9px] font-bold uppercase tracking-widest text-[#00A86B] dark:text-[#00A86B] mb-1">Pengaturan Sistem</p>
+                </div>
 
-            <button 
-              onClick={() => { setActiveTab('adminPanel'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'adminPanel' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
-            >
-              <UserCog className={`w-4 h-4 ${activeTab === 'adminPanel' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-              <span>Hak Akses & Resource</span>
-            </button>
+                <button 
+                  onClick={() => { setActiveTab('adminPanel'); setIsMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'adminPanel' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
+                >
+                  <UserCog className={`w-4 h-4 ${activeTab === 'adminPanel' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                  <span>Hak Akses & Resource</span>
+                </button>
 
-            <button 
-              onClick={() => { setActiveTab('rbac'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'rbac' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
-            >
-              <Fingerprint className={`w-4 h-4 ${activeTab === 'rbac' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-              <span>Matriks RBAC</span>
-            </button>
+                <button 
+                  onClick={() => { setActiveTab('rbac'); setIsMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'rbac' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
+                >
+                  <Fingerprint className={`w-4 h-4 ${activeTab === 'rbac' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                  <span>Matriks RBAC</span>
+                </button>
+              </>
+            )}
 
-            <div className="pt-4 pb-2 px-3 border-t border-slate-100 dark:border-slate-800/30 mt-2">
-               <p className="text-[9px] font-mono uppercase tracking-widest text-[#00A86B] dark:text-[#00A86B] font-bold">Spesifikasi & Teknis</p>
-            </div>
+            {hasMenuAccess('architecture', ['Superadmin']) && (
+              <>
+                <div className="pt-4 pb-2 px-3 border-t border-slate-100 dark:border-slate-800/30 mt-2">
+                   <p className="text-[9px] font-mono uppercase tracking-widest text-[#00A86B] dark:text-[#00A86B] font-bold">Spesifikasi & Teknis</p>
+                </div>
 
-            <button 
-              onClick={() => { setActiveTab('architecture'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'architecture' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
-            >
-              <ShieldAlert className={`w-4 h-4 ${activeTab === 'architecture' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-              <span>Arsitektur & Keamanan</span>
-            </button>
+                <button 
+                  onClick={() => { setActiveTab('architecture'); setIsMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'architecture' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
+                >
+                  <ShieldAlert className={`w-4 h-4 ${activeTab === 'architecture' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                  <span>Arsitektur & Keamanan</span>
+                </button>
 
-            <button 
-              onClick={() => { setActiveTab('schema'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'schema' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
-            >
-              <Database className={`w-4 h-4 ${activeTab === 'schema' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-              <span>Skema DDL SQL</span>
-            </button>
+                <button 
+                  onClick={() => { setActiveTab('schema'); setIsMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'schema' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
+                >
+                  <Database className={`w-4 h-4 ${activeTab === 'schema' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                  <span>Skema DDL SQL</span>
+                </button>
 
-            <button 
-              onClick={() => { setActiveTab('query'); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'query' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
-            >
-              <Code2 className={`w-4 h-4 ${activeTab === 'query' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
-              <span>Complex Query</span>
-            </button>
+                <button 
+                  onClick={() => { setActiveTab('query'); setIsMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'query' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
+                >
+                  <Code2 className={`w-4 h-4 ${activeTab === 'query' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
+                  <span>Complex Query</span>
+                </button>
+              </>
+            )}
           </>
         )}
       </nav>
