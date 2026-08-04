@@ -10,7 +10,7 @@ function VitalInputField({ label, unit, icon: Icon, required, type, step, value,
       </label>
       <div className="relative flex items-center">
         <input required={required} type={type || 'text'} step={step} min={min} max={max} value={value} onChange={e => onChange(e.target.value)} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono shadow-inner" placeholder={placeholder} />
-        {unit && <span className="absolute right-3 text-[10px] font-bold text-slate-400">{unit}</span>}
+        {unit && <span className={`absolute ${type === 'date' ? 'right-10' : 'right-3'} pointer-events-none text-[10px] font-bold text-slate-400`}>{unit}</span>}
       </div>
     </div>
   );
@@ -291,11 +291,33 @@ export function MedicalModals({
                     {selectedPatientImages.map((img: any, idx: number) => (
                       <a key={idx} href={img.image_data} target="_blank" rel="noopener noreferrer" className="block relative aspect-video rounded-xl overflow-hidden hover:opacity-90 ring-1 ring-slate-200 dark:ring-slate-700 transition-opacity shadow-sm">
                         <img src={img.image_data} alt={`File ${idx + 1}`} className="w-full h-full object-cover" />
-                      </a>
+                  </a>
                     ))}
                   </div>
                 </div>
               )}
+              {editingItem?.anc && (
+                  <div className="bg-pink-50 dark:bg-pink-900/20 border border-pink-100 dark:border-pink-800/50 p-4 rounded-xl space-y-3">
+                    <h4 className="font-bold text-[10px] text-pink-700 dark:text-pink-400 uppercase tracking-widest flex items-center gap-1 border-b border-pink-200 dark:border-pink-800/50 pb-2"><Baby className="w-4 h-4" /> Hasil Pemeriksaan ANC & USG Terakhir</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                      <div><span className="block text-[9px] text-pink-500 uppercase font-black tracking-wider">Usia Kandungan</span><span className="font-bold text-slate-700 dark:text-slate-200">{editingItem.anc.gestational_age || '-'} Minggu</span></div>
+                      <div><span className="block text-[9px] text-pink-500 uppercase font-black tracking-wider">HPHT</span><span className="font-bold text-slate-700 dark:text-slate-200">{editingItem.anc.hpht || '-'}</span></div>
+                      <div><span className="block text-[9px] text-pink-500 uppercase font-black tracking-wider">HPL</span><span className="font-bold text-slate-700 dark:text-slate-200">{editingItem.anc.estimated_delivery_date || '-'}</span></div>
+                      <div><span className="block text-[9px] text-pink-500 uppercase font-black tracking-wider">Skor P. Rochjati</span><span className="font-bold text-slate-700 dark:text-slate-200">{editingItem.anc.poedji_rochjati_score || '-'}</span></div>
+                      <div><span className="block text-[9px] text-pink-500 uppercase font-black tracking-wider">TFU</span><span className="font-bold text-slate-700 dark:text-slate-200">{editingItem.anc.tfu || '-'}</span></div>
+                      <div><span className="block text-[9px] text-pink-500 uppercase font-black tracking-wider">DJJ</span><span className="font-bold text-slate-700 dark:text-slate-200">{editingItem.anc.djj || '-'}</span></div>
+                      <div className="col-span-2"><span className="block text-[9px] text-pink-500 uppercase font-black tracking-wider">USG (BPD/HC/AC/FL/EFW/AFI)</span><span className="font-bold text-slate-700 dark:text-slate-200">{editingItem.anc.usg_bpd || '-'} / {editingItem.anc.usg_hc || '-'} / {editingItem.anc.usg_ac || '-'} / {editingItem.anc.usg_fl || '-'} / {editingItem.anc.usg_tbj || '-'} / {editingItem.anc.usg_afi || '-'}</span></div>
+                    </div>
+                    {editingItem.anc.usg_image && (
+                      <div className="mt-3">
+                        <label className="block text-[9px] text-pink-500 uppercase font-black tracking-wider mb-1">Foto Hasil USG</label>
+                        <a href={editingItem.anc.usg_image} target="_blank" rel="noopener noreferrer" className="block relative aspect-video rounded-xl overflow-hidden hover:opacity-90 ring-1 ring-pink-200 dark:ring-pink-700 transition-opacity shadow-sm w-full md:w-1/2 lg:w-1/3">
+                          <img src={editingItem.anc.usg_image} alt="USG" className="w-full h-full object-cover" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
               <div>
                 <label className="block text-[10px] font-black text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1 uppercase tracking-widest"><span className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 px-1.5 rounded text-[9px]">S</span> Subjective (Subjektif)</label>
                 <p className="text-[9px] text-slate-500 dark:text-slate-400 mb-2 uppercase font-bold tracking-tight">Keluhan utama, riwayat penyakit, gejala yang dirasakan pasien.</p>
@@ -751,6 +773,33 @@ export function MedicalModals({
                       onChange={(val: any) => setAncForm({...ancForm, usg_placenta: val})}
                       placeholder="Fundus/Previa"
                     />
+                  </div>
+                  <div className="mt-4">
+                    <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">Upload Foto Hasil USG (Opsional)</label>
+                    {ancForm.usg_image ? (
+                      <div className="relative rounded-xl overflow-hidden aspect-video border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center group w-full sm:w-1/2">
+                        <img src={ancForm.usg_image} alt="USG" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => setAncForm({...ancForm, usg_image: ''})} className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all font-bold text-xs uppercase tracking-widest gap-2">
+                          <X className="w-4 h-4" /> Hapus Foto
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-full sm:w-1/2 aspect-video border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300 transition-all group">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400 group-hover:text-indigo-500 transition-colors">
+                          <ImageIcon className="w-6 h-6 mb-2" />
+                          <p className="text-xs font-bold uppercase tracking-widest">Pilih Foto USG</p>
+                          <p className="text-[9px] mt-1">PNG, JPG atau JPEG (Max 5MB)</p>
+                        </div>
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => setAncForm({...ancForm, usg_image: ev.target?.result as string});
+                            reader.readAsDataURL(file);
+                          }
+                        }} />
+                      </label>
+                    )}
                   </div>
                 </div>
 

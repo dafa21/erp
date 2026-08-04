@@ -9,6 +9,7 @@ export interface UserDto {
   role: string;
   clinic_id?: string | number;
   clinic_name?: string;
+  accessible_menus?: string;
   [key: string]: any;
 }
 

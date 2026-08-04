@@ -511,6 +511,7 @@ async function initDb() {
   try { sqlDb.exec('ALTER TABLE users ADD COLUMN clinic_id INTEGER'); } catch(e) {}
   try { sqlDb.exec('ALTER TABLE users ADD COLUMN phone TEXT'); } catch(e) {}
   try { sqlDb.exec('ALTER TABLE users ADD COLUMN face_image TEXT'); } catch(e) {}
+  try { sqlDb.exec('ALTER TABLE users ADD COLUMN accessible_menus TEXT'); } catch(e) {}
   try { sqlDb.exec('ALTER TABLE beds ADD COLUMN clinic_id INTEGER'); } catch(e) {}
   try { sqlDb.exec('ALTER TABLE shifts ADD COLUMN clinic_id INTEGER'); } catch(e) {}
   try { sqlDb.exec('ALTER TABLE tariffs ADD COLUMN clinic_id INTEGER'); } catch(e) {}
@@ -1474,23 +1475,23 @@ Instruksi Utama:
       const { clinicId, role } = req.query;
       let users;
       if ((role === 'Superadmin' || role === 'Admin') && !clinicId) {
-        users = await db.prepare('SELECT id, username, name, role, clinic_id, status, phone FROM users').all();
+        users = await db.prepare('SELECT id, username, name, role, clinic_id, status, phone, accessible_menus FROM users').all();
       } else {
-        users = await db.prepare('SELECT id, username, name, role, clinic_id, status, phone FROM users WHERE clinic_id = ?').all(clinicId || null);
+        users = await db.prepare('SELECT id, username, name, role, clinic_id, status, phone, accessible_menus FROM users WHERE clinic_id = ?').all(clinicId || null);
       }
       res.json(users);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
   });
-  
+
   app.post('/api/users', async (req, res) => {
     try {
-      const { username, password, name, role, status, clinic_id, phone } = req.body;
+      const { username, password, name, role, status, clinic_id, phone, accessible_menus } = req.body;
       const hashedPassword = bcrypt.hashSync(password || 'password', 10);
-      const stmt = db.prepare('INSERT INTO users (username, password, name, role, clinic_id, status, phone) VALUES (?, ?, ?, ?, ?, ?, ?)');
-      const info = await stmt.run(username || `user_${Date.now()}`, hashedPassword, name, role, clinic_id, status || 'Active', phone || '');
-      const user = await db.prepare('SELECT id, username, name, role, clinic_id, status, phone, face_image FROM users WHERE id = ?').get(info.lastInsertRowid);
+      const stmt = db.prepare('INSERT INTO users (username, password, name, role, clinic_id, status, phone, accessible_menus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+      const info = await stmt.run(username || `user_${Date.now()}`, hashedPassword, name, role, clinic_id, status || 'Active', phone || '', accessible_menus || '');
+      const user = await db.prepare('SELECT id, username, name, role, clinic_id, status, phone, face_image, accessible_menus FROM users WHERE id = ?').get(info.lastInsertRowid);
       res.status(201).json(user);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
@@ -1498,15 +1499,15 @@ Instruksi Utama:
   });
 
   app.put('/api/users/:id', async (req, res) => {
-    const { username, password, name, role, status, phone, face_image, clinic_id } = req.body;
+    const { username, password, name, role, status, phone, face_image, clinic_id, accessible_menus } = req.body;
     const cid = clinic_id ? Number(clinic_id) : null;
     if (password) {
       const hashedPassword = bcrypt.hashSync(password, 10);
-      await db.prepare('UPDATE users SET username = ?, password = ?, name = ?, role = ?, status = ?, phone = ?, face_image = COALESCE(?, face_image), clinic_id = ? WHERE id = ?').run(username, hashedPassword, name, role, status, phone || '', face_image, cid, req.params.id);
+      await db.prepare('UPDATE users SET username = ?, password = ?, name = ?, role = ?, status = ?, phone = ?, face_image = COALESCE(?, face_image), clinic_id = ?, accessible_menus = ? WHERE id = ?').run(username, hashedPassword, name, role, status, phone || '', face_image, cid, accessible_menus || '', req.params.id);
     } else {
-      await db.prepare('UPDATE users SET username = ?, name = ?, role = ?, status = ?, phone = ?, face_image = COALESCE(?, face_image), clinic_id = ? WHERE id = ?').run(username, name, role, status, phone || '', face_image, cid, req.params.id);
+      await db.prepare('UPDATE users SET username = ?, name = ?, role = ?, status = ?, phone = ?, face_image = COALESCE(?, face_image), clinic_id = ?, accessible_menus = ? WHERE id = ?').run(username, name, role, status, phone || '', face_image, cid, accessible_menus || '', req.params.id);
     }
-    const user = await db.prepare('SELECT u.id, u.username, u.name, u.role, u.clinic_id, u.status, u.phone, u.face_image, c.name as clinic_name FROM users u LEFT JOIN clinics c ON u.clinic_id = c.id WHERE u.id = ?').get(req.params.id);
+    const user = await db.prepare('SELECT u.id, u.username, u.name, u.role, u.clinic_id, u.status, u.phone, u.face_image, u.accessible_menus, c.name as clinic_name FROM users u LEFT JOIN clinics c ON u.clinic_id = c.id WHERE u.id = ?').get(req.params.id);
     res.json(user);
   });
 

@@ -562,6 +562,61 @@ Terima kasih banyak atas perhatian, bimbingan, dan kerja sama Dokter. 🙏✨`;
                     <option value="Suspended">Suspended</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Akses Menu Khusus (Opsional)</label>
+                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar p-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-900/50">
+                    {(() => {
+                      const allMenus = [
+                        { id: 'dashboard', label: 'Live Dashboard' },
+                        { id: 'appointments', label: 'Jadwal & Janji Temu' },
+                        { id: 'patients', label: 'Pasien Masuk (Triage)' },
+                        { id: 'doctorDashboard', label: 'Dashboard Medis' },
+                        { id: 'doctorSOAP', label: 'Rekam Medis (SOAP)' },
+                        { id: 'anc', label: 'Ibu Hamil (ANC)' },
+                        { id: 'children', label: 'Bayi & Anak' },
+                        { id: 'lis', label: 'Laboratorium & Rad' },
+                        { id: 'billing', label: 'Kasir & Pembayaran' },
+                        { id: 'inventory', label: 'Inventory & Apotek' },
+                        { id: 'patientDatabase', label: 'Database Pasien' },
+                        { id: 'reports', label: 'Laporan Strategis' },
+                        { id: 'patientAnalytics', label: 'Analitik & Demografi' },
+                        { id: 'clinics', label: 'Manajemen Klinik' },
+                        { id: 'attendance', label: 'Riwayat Absensi' },
+                        { id: 'map', label: 'Peta Sebaran' },
+                        { id: 'queue', label: 'Antrian Layanan' },
+                        { id: 'queueTV', label: 'Layar Antrean TV' },
+                        { id: 'lpj', label: 'Laporan (LPJ)' },
+                        { id: 'accounting', label: 'Akuntansi & Keuangan' },
+                        { id: 'adminPanel', label: 'Panel Manajemen' }
+                      ];
+                      
+                      let selected: string[] = [];
+                      try {
+                        selected = userForm.accessible_menus ? JSON.parse(userForm.accessible_menus) : [];
+                      } catch(e) {}
+                      if (!Array.isArray(selected)) selected = [];
+
+                      return allMenus.map(m => (
+                        <label key={m.id} className="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-white dark:hover:bg-slate-800 rounded transition-colors">
+                          <input 
+                            type="checkbox" 
+                            checked={selected.includes(m.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setUserForm({...userForm, accessible_menus: JSON.stringify([...selected, m.id])});
+                              } else {
+                                setUserForm({...userForm, accessible_menus: JSON.stringify(selected.filter((s: string) => s !== m.id))});
+                              }
+                            }}
+                            className="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500" 
+                          />
+                          <span className="text-[10px] font-medium text-slate-700 dark:text-slate-300">{m.label}</span>
+                        </label>
+                      ));
+                    })()}
+                  </div>
+                  <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">Jika dikosongkan, akses menu akan menyesuaikan dengan Role/Peran secara default.</p>
+                </div>
                 <div className="pt-6 flex justify-end gap-3 border-t dark:border-slate-800 mt-4">
                   <button type="button" onClick={() => setModalType('none')} className="px-5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-slate-400 uppercase tracking-widest text-[10px] transition-all">Batal</button>
                   <button type="submit" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-xl font-bold text-white uppercase tracking-widest text-[10px] shadow-lg shadow-blue-100 dark:shadow-none transition-all">

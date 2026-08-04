@@ -661,7 +661,7 @@ export default function App() {
 
   // Form states
   const [clinicForm, setClinicForm] = useState({ name: '', address: '', phone: '', status: 'Active', latitude: '', longitude: '', sponsor_logo: '', sponsor_name: '', youtube_link: '', support_logo: '' });
-  const [userForm, setUserForm] = useState({ username: '', password: '', name: '', role: 'Suster', clinic_id: '', status: 'Active', phone: '' });
+  const [userForm, setUserForm] = useState({ username: '', password: '', name: '', role: 'Suster', clinic_id: '', status: 'Active', phone: '', accessible_menus: '' });
   const [whatsappPrompt, setWhatsappPrompt] = useState<{
     show: boolean;
     patientName: string;
@@ -2711,10 +2711,10 @@ export default function App() {
   const openUserModal = (user: any = null) => {
     if (user) {
       setEditingItem(user);
-      setUserForm({ username: user.username, password: '', name: user.name, role: user.role, clinic_id: user.clinic_id?.toString() || '', status: user.status, phone: user.phone || '' });
+      setUserForm({ username: user.username, password: '', name: user.name, role: user.role, clinic_id: user.clinic_id?.toString() || '', status: user.status, phone: user.phone || '', accessible_menus: user.accessible_menus || '' });
     } else {
       setEditingItem(null);
-      setUserForm({ username: '', password: '', name: '', role: 'Suster', clinic_id: currentUser?.clinic_id?.toString() || '', status: 'Active', phone: '' });
+      setUserForm({ username: '', password: '', name: '', role: 'Suster', clinic_id: currentUser?.clinic_id?.toString() || '', status: 'Active', phone: '', accessible_menus: '' });
     }
     setModalType('user');
   };
@@ -4078,6 +4078,22 @@ export default function App() {
     </tr>
   );
 
+  
+  const hasMenuAccess = (menuKey: string, allowedRoles: string[]) => {
+    if (!currentUser) return false;
+    if (currentUser.role === 'Superadmin') return true;
+    if (currentUser.accessible_menus) {
+      let parsed: string[] = [];
+      try {
+        parsed = typeof currentUser.accessible_menus === 'string' 
+          ? JSON.parse(currentUser.accessible_menus) 
+          : currentUser.accessible_menus;
+      } catch(e) {}
+      if (parsed.length > 0) return parsed.includes(menuKey);
+    }
+    return allowedRoles.includes(currentUser.role);
+  };
+
   const renderSidebarContent = () => (
     <>
       <div className="px-5 py-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 shrink-0 font-sans">
@@ -4149,7 +4165,7 @@ export default function App() {
           <span>Jadwal & Janji Temu</span>
         </button>
 
-        {(currentUser?.role === 'Superadmin' || currentUser?.role === 'Admin' || currentUser?.role === 'Suster' || currentUser?.role === 'Bidan') && (
+        {hasMenuAccess('patients', ['Superadmin', 'Admin', 'Suster', 'Bidan']) && (
           <button 
             onClick={() => { setActiveTab('patients'); setIsMobileMenuOpen(false); }}
             className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'patients' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4162,7 +4178,7 @@ export default function App() {
           </button>
         )}
 
-        {(currentUser?.role === 'Superadmin' || currentUser?.role === 'Dokter' || currentUser?.role === 'Bidan') && (
+        {hasMenuAccess('doctorDashboard', ['Superadmin', 'Dokter', 'Bidan']) && (
           <>
             <button 
               onClick={() => { setActiveTab('doctorDashboard'); setIsMobileMenuOpen(false); }}
@@ -4187,7 +4203,7 @@ export default function App() {
           </>
         )}
 
-        {(currentUser?.role === 'Superadmin' || currentUser?.role === 'Admin' || currentUser?.role === 'Bidan') && (
+        {hasMenuAccess('anc', ['Superadmin', 'Admin', 'Bidan']) && (
           <button 
             onClick={() => { setActiveTab('anc'); setIsMobileMenuOpen(false); }}
             className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'anc' ? 'bg-pink-50 dark:bg-pink-900/40 text-pink-700 dark:text-pink-400 shadow-sm border border-pink-100 dark:border-pink-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4197,7 +4213,7 @@ export default function App() {
           </button>
         )}
 
-        {(currentUser?.role === 'Superadmin' || currentUser?.role === 'Admin' || currentUser?.role === 'Bidan' || currentUser?.role === 'Suster') && (
+        {hasMenuAccess('children', ['Superadmin', 'Admin', 'Bidan', 'Suster']) && (
           <button 
             onClick={() => { setActiveTab('children'); setIsMobileMenuOpen(false); }}
             className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'children' ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 shadow-sm border border-blue-100 dark:border-blue-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
@@ -4306,10 +4322,10 @@ export default function App() {
         </div>
 
 
-        {(currentUser?.role === 'Superadmin' || currentUser?.role === 'Admin') && (
-          <>
-            <button 
-              onClick={() => { setActiveTab('patientDatabase'); setIsMobileMenuOpen(false); }}
+        {hasMenuAccess('patientDatabase', ['Superadmin', 'Admin']) && (
+              <>
+              <button 
+                onClick={() => { setActiveTab('patientDatabase'); setIsMobileMenuOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'patientDatabase' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
             >
               <Database className={`w-4 h-4 ${activeTab === 'patientDatabase' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
@@ -4324,10 +4340,10 @@ export default function App() {
               <span>Analitik & Demografi</span>
             </button>
 
-            {currentUser?.role === 'Superadmin' && (
-              <>
-                <button 
-                  onClick={() => { setActiveTab('clinics'); setIsMobileMenuOpen(false); }}
+            {hasMenuAccess('clinics', ['Superadmin']) && (
+                <>
+                  <button 
+                    onClick={() => { setActiveTab('clinics'); setIsMobileMenuOpen(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'clinics' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
                 >
                   <Building2 className={`w-4 h-4 ${activeTab === 'clinics' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
@@ -4357,9 +4373,9 @@ export default function App() {
               </>
             )}
 
-            {currentUser?.role === 'Superadmin' && (
-              <button 
-                onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }}
+            {hasMenuAccess('map', ['Superadmin']) && (
+                <button 
+                  onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }}
                 className={`w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold transition-all rounded-xl ${activeTab === 'map' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100 dark:border-indigo-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-transparent'}`}
               >
                 <MapPin className={`w-4 h-4 ${activeTab === 'map' ? 'text-indigo-600 dark:text-indigo-400' : ''}`} />
@@ -4835,7 +4851,7 @@ export default function App() {
             clinicsInfo={clinicsInfo}
           />
         )}
-         {activeTab === 'clinics' && currentUser?.role === 'Superadmin' && (
+         {activeTab === 'clinics' && hasMenuAccess('clinics', ['Superadmin']) && (
           <ClinicsTab
             clinicsInfo={clinicsInfo}
             setEditingItem={setEditingItem}
@@ -4844,7 +4860,7 @@ export default function App() {
             fetchClinics={fetchClinics}
           />
         )}
-        {activeTab === 'attendance' && currentUser?.role === 'Superadmin' && (
+        {activeTab === 'attendance' && hasMenuAccess('attendance', ['Superadmin']) && (
           <AttendanceTab
             currentUser={currentUser}
             attendanceMonth={attendanceMonth}
