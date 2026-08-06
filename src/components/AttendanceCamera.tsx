@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { Camera, MapPin, X, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import * as faceapi from '@vladmandic/face-api';
 
 interface AttendanceCameraProps {
   type: 'Masuk' | 'Keluar';
@@ -18,23 +17,8 @@ export default function AttendanceCamera({ type, onClose, userId }: AttendanceCa
   const [locError, setLocError] = useState<string>('');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFaceModelLoaded, setIsFaceModelLoaded] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errMsg, setErrMsg] = useState('');
-
-  // Load Face API model
-  useEffect(() => {
-    const loadModel = async () => {
-      try {
-        await faceapi.nets.ssdMobilenetv1.loadFromUri('https://raw.githubusercontent.com/vladmandic/face-api/master/model/');
-        setIsFaceModelLoaded(true);
-      } catch (err) {
-        console.error("Failed to load face-api model", err);
-        setErrMsg("Gagal memuat sistem deteksi wajah. Pastikan koneksi internet stabil.");
-      }
-    };
-    loadModel();
-  }, []);
 
   // Setup camera
   useEffect(() => {
@@ -114,13 +98,6 @@ export default function AttendanceCamera({ type, onClose, userId }: AttendanceCa
     setIsSubmitting(true);
     setErrMsg('');
     try {
-      // Validate Face First
-      if (imageRef.current) {
-         const detections = await faceapi.detectAllFaces(imageRef.current, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 }));
-         if (detections.length === 0) {
-            throw new Error('Sistem mendeteksi bahwa foto ini tidak menampilkan wajah manusia dengan jelas. Mohon foto ulang dengan memperlihatkan wajah Anda!');
-         }
-      }
 
       const res = await fetch('/api/attendance', {
         method: 'POST',
@@ -225,10 +202,9 @@ export default function AttendanceCamera({ type, onClose, userId }: AttendanceCa
                 {!photoData ? (
                   <button 
                     onClick={takePhoto}
-                    disabled={!isFaceModelLoaded}
-                    className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold uppercase tracking-widest hover:opacity-90 transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+                    className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold uppercase tracking-widest hover:opacity-90 transition-all flex justify-center items-center gap-2"
                   >
-                    {isFaceModelLoaded ? <><Camera className="w-5 h-5"/> Ambil Foto Wajah</> : <><Loader2 className="w-5 h-5 animate-spin" /> Memuat Sistem Wajah...</>}
+                    <Camera className="w-5 h-5"/> Ambil Foto Biasa
                   </button>
                 ) : (
                   <>
