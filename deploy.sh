@@ -27,8 +27,9 @@ fi
 echo "📦 Menginstall dependencies..."
 npm install --production=false
 
-# 4. Build aplikasi
+# 4. Build aplikasi dengan batasan memori (mencegah VPS kehabisan RAM / Error 502)
 echo "🏗️ Membangun aplikasi (Build)..."
+export NODE_OPTIONS="--max-old-space-size=512"
 npm run build
 
 # 5. Konfigurasi file .env

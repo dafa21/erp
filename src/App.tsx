@@ -4889,7 +4889,7 @@ export default function App() {
             fetchClinics={fetchClinics}
           />
         )}
-        {activeTab === 'attendance' && hasMenuAccess('attendance', ['Superadmin']) && (
+        {activeTab === 'attendance' && hasMenuAccess('attendance', ['Superadmin', 'Admin']) && (
           <AttendanceTab
             currentUser={currentUser}
             attendanceMonth={attendanceMonth}
