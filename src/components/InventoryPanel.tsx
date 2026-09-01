@@ -106,15 +106,17 @@ export default function InventoryPanel({ clinicId, currentUser, clinics = [] }: 
     try {
       const res = await fetch(`/api/inventory?clinicId=${targetClinicFilter}&role=${currentUser?.role || ''}`);
       const data = await res.json();
-      setItems(data);
+      setItems(Array.isArray(data) ? data : []);
       
       const coaRes = await fetch('/api/coa');
       if(coaRes.ok) {
         const coaData = await coaRes.json();
-        setCoa(coaData);
+        setCoa(Array.isArray(coaData) ? coaData : []);
       }
     } catch (e) {
       console.error(e);
+      setItems([]);
+      setCoa([]);
     }
     setLoading(false);
   };
@@ -166,8 +168,8 @@ export default function InventoryPanel({ clinicId, currentUser, clinics = [] }: 
     }
   };
   
-  const filteredItems = items.filter(i => 
-    i.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredItems = (Array.isArray(items) ? items : []).filter(i => 
+    (i.name || '').toLowerCase().includes(search.toLowerCase()) || 
     (i.item_code || '').toLowerCase().includes(search.toLowerCase()) ||
     (i.category || '').toLowerCase().includes(search.toLowerCase())
   );
@@ -337,7 +339,7 @@ export default function InventoryPanel({ clinicId, currentUser, clinics = [] }: 
                        className="w-full bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-500"
                      >
                        <option value="">-- Pilih Akun Aset / HPP --</option>
-                       {coa.filter(a => a.account_code.startsWith('1') || a.account_code.startsWith('5')).map(a => (
+                       {(Array.isArray(coa) ? coa : []).filter(a => a.account_code?.startsWith('1') || a.account_code?.startsWith('5')).map(a => (
                          <option key={a.id} value={a.id}>{a.account_code} - {a.account_name}</option>
                        ))}
                      </select>
@@ -350,7 +352,7 @@ export default function InventoryPanel({ clinicId, currentUser, clinics = [] }: 
                        className="w-full bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-500"
                      >
                        <option value="">-- Pilih Akun Beban --</option>
-                       {coa.filter(a => a.account_type === 'Expense' && a.level === 'Child').map(a => (
+                       {(Array.isArray(coa) ? coa : []).filter(a => a.account_type === 'Expense' && a.level === 'Child').map(a => (
                          <option key={a.id} value={a.id}>{a.account_code} - {a.account_name}</option>
                        ))}
                      </select>
@@ -380,7 +382,7 @@ export default function InventoryPanel({ clinicId, currentUser, clinics = [] }: 
                             className="w-full bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-indigo-500"
                           >
                             <option value="">-- Pilih Akun Kas --</option>
-                            {coa.filter(a => a.account_code.startsWith('1.1.1') && a.level === 'Child').map(a => (
+                            {(Array.isArray(coa) ? coa : []).filter(a => a.account_code?.startsWith('1.1.1') && a.level === 'Child').map(a => (
                               <option key={a.id} value={a.id}>{a.account_code} - {a.account_name}</option>
                             ))}
                           </select>

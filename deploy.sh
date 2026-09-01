@@ -23,16 +23,11 @@ if ! command -v pm2 &> /dev/null; then
     npm install -g pm2
 fi
 
-# 3. Install dependencies
-echo "📦 Menginstall dependencies..."
-npm install --production=false
+# 3. Install production dependencies saja (karena build sudah dilakukan di GitHub Actions)
+echo "📦 Menginstall dependencies (Production)..."
+npm install --production
 
-# 4. Build aplikasi dengan batasan memori (mencegah VPS kehabisan RAM / Error 502)
-echo "🏗️ Membangun aplikasi (Build)..."
-export NODE_OPTIONS="--max-old-space-size=512"
-npm run build
-
-# 5. Konfigurasi file .env
+# 4. Konfigurasi file .env
 if [ ! -f .env ]; then
   echo "📝 Membuat file .env default..."
   cat <<EOT > .env
@@ -42,7 +37,7 @@ DATABASE_FILE=database.sqlite
 EOT
 fi
 
-# 6. Restart server menggunakan PM2
+# 5. Restart server menggunakan PM2
 echo "🔄 Me-restart PM2..."
 
 # Pastikan file database bisa ditulisi, termasuk file -wal dan -shm
@@ -56,6 +51,17 @@ if [ -f database.sqlite-shm ]; then
   chmod 666 database.sqlite-shm || true
 fi
 
+# Pastikan direktori dist/ ada dari hasil SCP
+if [ ! -f dist/server.cjs ]; then
+  echo "❌ Error: dist/server.cjs tidak ditemukan. Transfer dari GitHub Action gagal?"
+  exit 1
+fi
+
+APP_DIR=$(pwd)
+
+# Reset PM2 processes (hapus sim-nurhealth lama untuk restart)
+pm2 delete sim-nurhealth 2>/dev/null || true
+
 # Bebaskan port target jika masih ada proses zombie yang menggunakannya
 echo "🔍 Mengosongkan port $TARGET_PORT dari sisa proses sebelumnya..."
 if command -v fuser &> /dev/null; then
@@ -66,17 +72,6 @@ else
   # Cara manual jika lsof/fuser tidak ada: mencari pid menggunakan ss/netstat
   ss -ltnp 2>/dev/null | grep ":$TARGET_PORT " | awk '{print $NF}' | cut -d, -f2 | cut -d= -f2 | xargs kill -9 2>/dev/null || true
 fi
-
-# Pastikan direktori dist/ ada
-if [ ! -f dist/server.cjs ]; then
-  echo "❌ Error: dist/server.cjs tidak ditemukan. Build gagal?"
-  exit 1
-fi
-
-APP_DIR=$(pwd)
-
-# Reset PM2 processes (hapus sim-nurhealth lama untuk restart)
-pm2 delete sim-nurhealth 2>/dev/null || true
 
 # Start application menggunakan konfigurasi ecosystem
 echo "🚀 Memulai aplikasi via PM2 ecosystem.config.cjs..."

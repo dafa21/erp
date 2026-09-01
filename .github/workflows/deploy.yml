@@ -12,7 +12,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy via SSH
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Copy files to VPS via scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+          source: "dist/,package.json,package-lock.json,ecosystem.config.cjs,deploy.sh"
+          target: "/var/www/sim-nurhealth"
+
+      - name: Execute deployment script on VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -21,9 +42,6 @@ jobs:
           port: 22
           script: |
             set -e
-            mkdir -p /var/www/sim-nurhealth
             cd /var/www/sim-nurhealth
-            git fetch --all
-            git reset --hard origin/main
             chmod +x deploy.sh
             ./deploy.sh
