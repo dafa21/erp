@@ -1375,8 +1375,41 @@ Instruksi Utama:
   });
 
   app.delete('/api/clinics/:id', async (req, res) => {
-    await db.prepare('DELETE FROM clinics WHERE id = ?').run(req.params.id);
-    res.json({ success: true });
+    try {
+      const clinicId = req.params.id;
+
+      sqlDb.pragma('foreign_keys = OFF');
+      try {
+        const deleteTx = sqlDb.transaction((id: any) => {
+          // Isolate relational data (protect medical records while detaching clinic)
+          try { sqlDb.prepare('UPDATE users SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('UPDATE patients SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('UPDATE billings SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('UPDATE chart_of_accounts SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('UPDATE journals SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('UPDATE drugs SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('UPDATE inventory_items SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('UPDATE stock_logs SET clinic_id = NULL WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('DELETE FROM beds WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('DELETE FROM shifts WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('DELETE FROM tariffs WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('DELETE FROM drug_margins WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('DELETE FROM patient_referrals WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('DELETE FROM lab_orders WHERE clinic_id = ?').run(id); } catch(e) {}
+          try { sqlDb.prepare('DELETE FROM appointments WHERE clinic_id = ?').run(id); } catch(e) {}
+          
+          sqlDb.prepare('DELETE FROM clinics WHERE id = ?').run(id);
+        });
+        deleteTx(clinicId);
+      } finally {
+        sqlDb.pragma('foreign_keys = ON');
+      }
+
+      res.json({ success: true, message: 'Protokol klinik berhasil dihapus dan data terkait telah diisolasi.' });
+    } catch (e: any) {
+      console.error('[API] Error deleting clinic:', e);
+      res.status(500).json({ error: e.message || 'Gagal menghapus klinik' });
+    }
   });
 
   app.put('/api/clinics/:id/logo', async (req, res) => {

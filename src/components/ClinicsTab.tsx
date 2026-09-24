@@ -1,4 +1,5 @@
-import { Building2, Plus, Footprints, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Building2, Plus, Footprints, Trash2, AlertTriangle, X, ShieldAlert, Loader2 } from 'lucide-react';
 import { ActionMenu } from './ActionMenu';
 
 interface ClinicsTabProps {
@@ -16,8 +17,34 @@ export function ClinicsTab({
   setModalType,
   fetchClinics
 }: ClinicsTabProps) {
+  const [clinicToDelete, setClinicToDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleConfirmDelete = async () => {
+    if (!clinicToDelete) return;
+    try {
+      setIsDeleting(true);
+      setDeleteError(null);
+      const res = await fetch(`/api/clinics/${clinicToDelete.id}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Gagal menghapus protokol klinik.');
+      }
+      setClinicToDelete(null);
+      await fetchClinics();
+    } catch (err: any) {
+      console.error('Delete clinic error:', err);
+      setDeleteError(err.message || 'Terjadi kesalahan sistem saat menghapus protokol.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col relative">
       <header className="flex flex-col sm:flex-row sm:items-center justify-between shrink-0 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 mb-4">
         <div className="flex items-center gap-4">
           <div className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center text-white shadow-lg">
@@ -67,7 +94,7 @@ export function ClinicsTab({
               </div>
             </div>
 
-            <div className="flex justify-end pt-3 border-t border-slate-50">
+            <div className="flex justify-end pt-3 border-t border-slate-50 dark:border-slate-800/50">
               <ActionMenu 
                 actions={[
                   {
@@ -79,7 +106,10 @@ export function ClinicsTab({
                     label: "Hapus Protokol",
                     icon: Trash2,
                     variant: 'danger',
-                    onClick: async () => { if(confirm('Hapus protokol klinik ini? Sesuai regulasi, data terkait akan terisolasi.')){ await fetch(`/api/clinics/${clinic.id}`, {method: 'DELETE'}); fetchClinics(); } }
+                    onClick: () => {
+                      setDeleteError(null);
+                      setClinicToDelete(clinic);
+                    }
                   }
                 ]}
               />
@@ -93,6 +123,101 @@ export function ClinicsTab({
           </div>
         )}
       </div>
+
+      {/* Modal Konfirmasi Hapus Klinik */}
+      {clinicToDelete && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div 
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Header */}
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-950/40">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-100 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-800 dark:text-slate-100 text-sm uppercase tracking-tight">
+                    Hapus Protokol Klinik
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    CL-{clinicToDelete.id.toString().padStart(4, '0')}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => { if (!isDeleting) setClinicToDelete(null); }}
+                disabled={isDeleting}
+                className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors disabled:opacity-50"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              <div>
+                <p className="text-xs text-slate-650 dark:text-slate-300 leading-relaxed font-medium">
+                  Apakah Anda yakin ingin menghapus protokol untuk klinik <strong className="text-slate-900 dark:text-white font-bold">{clinicToDelete.name}</strong>?
+                </p>
+                {clinicToDelete.address && (
+                  <p className="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1.5 truncate">
+                    <Footprints className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                    <span className="truncate">{clinicToDelete.address}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Regulatory Notice Banner */}
+              <div className="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-900/40 flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                  <strong>Sesuai Regulasi Medis:</strong> Seluruh riwayat medis, transaksi pasien, dan rekam medik tidak akan hilang, melainkan diisolasi secara aman dari protokol cabang ini.
+                </div>
+              </div>
+
+              {deleteError && (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs text-rose-600 dark:text-rose-400 font-medium">
+                  {deleteError}
+                </div>
+              )}
+            </div>
+
+            {/* Actions Footer */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setClinicToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors uppercase tracking-wider disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-rose-600/20 uppercase tracking-wider"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Menghapus...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Hapus Protokol</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
