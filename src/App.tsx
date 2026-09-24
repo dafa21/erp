@@ -4913,6 +4913,7 @@ export default function App() {
              clinicsInfo={clinicsInfo} 
              patientsInfo={patientsInfo} 
              billingsData={billingsData} 
+             darkMode={darkMode}
           />
         )}
 
@@ -5247,7 +5248,7 @@ export default function App() {
                                       setPatientForm({
                                         rm_number: p.mother_rm + '-A', // Menandakan RM Anak dari RM Ibu
                                         name: p.name,
-                                        age: calculateAge(p.birth_date),
+                                        age: calculateAge(p.birth_date).toString(),
                                         gender: p.gender,
                                         address: mother?.address || '',
                                         phone: mother?.phone || '',
