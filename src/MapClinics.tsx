@@ -50,7 +50,7 @@ const createClinicMarkerIcon = (status: string) => {
   });
 };
 
-export type BasemapId = 'voyager' | 'positron' | 'dark' | 'satellite';
+export type BasemapId = 'google_streets' | 'esri_light' | 'esri_dark' | 'google_hybrid';
 
 const BASEMAP_CONFIG: Record<BasemapId, {
   name: string;
@@ -59,33 +59,33 @@ const BASEMAP_CONFIG: Record<BasemapId, {
   subdomains: string[];
   maxZoom: number;
 }> = {
-  voyager: {
+  google_streets: {
     name: 'Standar',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>',
-    subdomains: ['a', 'b', 'c', 'd'],
+    url: 'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    attribution: '&copy; Google Maps',
+    subdomains: ['0', '1', '2', '3'],
     maxZoom: 20
   },
-  positron: {
+  esri_light: {
     name: 'Terang',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>',
-    subdomains: ['a', 'b', 'c', 'd'],
-    maxZoom: 20
-  },
-  dark: {
-    name: 'Gelap',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>',
-    subdomains: ['a', 'b', 'c', 'd'],
-    maxZoom: 20
-  },
-  satellite: {
-    name: 'Satelit',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri',
     subdomains: ['a', 'b', 'c', 'd'],
     maxZoom: 19
+  },
+  esri_dark: {
+    name: 'Gelap',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri',
+    subdomains: ['a', 'b', 'c', 'd'],
+    maxZoom: 16
+  },
+  google_hybrid: {
+    name: 'Satelit',
+    url: 'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    attribution: '&copy; Google Maps',
+    subdomains: ['0', '1', '2', '3'],
+    maxZoom: 20
   }
 };
 
@@ -120,14 +120,14 @@ interface MapClinicsProps {
 
 export default function MapClinics({ clinicsInfo, patientsInfo, billingsData, darkMode = false }: MapClinicsProps) {
   const [selectedClinic, setSelectedClinic] = useState<any>(null);
-  const [activeBasemapId, setActiveBasemapId] = useState<BasemapId>(() => (darkMode ? 'dark' : 'voyager'));
+  const [activeBasemapId, setActiveBasemapId] = useState<BasemapId>(() => (darkMode ? 'esri_dark' : 'google_streets'));
   const [fitTrigger, setFitTrigger] = useState<number>(0);
 
   // Sync basemap with theme if user is using default theme
   useEffect(() => {
     setActiveBasemapId(prev => {
-      if (darkMode && (prev === 'voyager' || prev === 'positron')) return 'dark';
-      if (!darkMode && prev === 'dark') return 'voyager';
+      if (darkMode && (prev === 'google_streets' || prev === 'esri_light')) return 'esri_dark';
+      if (!darkMode && prev === 'esri_dark') return 'google_streets';
       return prev;
     });
   }, [darkMode]);
@@ -158,7 +158,7 @@ export default function MapClinics({ clinicsInfo, patientsInfo, billingsData, da
     });
   }, [clinicsInfo, patientsInfo, billingsData]);
 
-  const activeBasemap = BASEMAP_CONFIG[activeBasemapId] || BASEMAP_CONFIG.voyager;
+  const activeBasemap = BASEMAP_CONFIG[activeBasemapId] || BASEMAP_CONFIG.google_streets;
 
   return (
     <div className="animate-in fade-in h-full flex flex-col pt-2 w-full relative">
