@@ -506,6 +506,7 @@ async function initDb() {
   try { sqlDb.prepare('ALTER TABLE clinics ADD COLUMN sponsor_name TEXT').run(); } catch(e) {}
   try { sqlDb.prepare('ALTER TABLE clinics ADD COLUMN youtube_link TEXT').run(); } catch(e) {}
   try { sqlDb.prepare('ALTER TABLE clinics ADD COLUMN support_logo TEXT').run(); } catch(e) {}
+  try { sqlDb.prepare('ALTER TABLE clinics ADD COLUMN photos TEXT').run(); } catch(e) {}
   try { sqlDb.prepare('ALTER TABLE billings ADD COLUMN is_sponsor_covered INTEGER DEFAULT 0').run(); } catch(e) {}
 
   try { sqlDb.exec('ALTER TABLE users ADD COLUMN clinic_id INTEGER'); } catch(e) {}
@@ -1314,6 +1315,7 @@ Instruksi Utama:
           sponsor_logo: clinic.sponsor_logo,
           support_logo: clinic.support_logo,
           youtube_link: clinic.youtube_link,
+          photos: clinic.photos,
           patientCount: clinicPatients.length,
           revenue: revenue,
           patients: clinicPatients
@@ -1343,8 +1345,8 @@ Instruksi Utama:
 
   app.post('/api/clinics', async (req, res) => {
     try {
-      const { name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo } = req.body;
-      const insertInfo = db.prepare('INSERT INTO clinics (name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(name, address, phone, status || 'Active', latitude || null, longitude || null, sponsor_logo || null, sponsor_name || null, youtube_link || null, support_logo || null);
+      const { name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo, photos } = req.body;
+      const insertInfo = db.prepare('INSERT INTO clinics (name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo, photos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(name, address, phone, status || 'Active', latitude || null, longitude || null, sponsor_logo || null, sponsor_name || null, youtube_link || null, support_logo || null, photos || null);
       const newId = insertInfo.lastInsertRowid;
       
       const kasTypes = [
@@ -1368,8 +1370,8 @@ Instruksi Utama:
   });
 
   app.put('/api/clinics/:id', async (req, res) => {
-    const { name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo } = req.body;
-    await db.prepare('UPDATE clinics SET name = ?, address = ?, phone = ?, status = ?, latitude = ?, longitude = ?, sponsor_logo = ?, sponsor_name = ?, youtube_link = ?, support_logo = ? WHERE id = ?').run(name, address, phone, status, latitude || null, longitude || null, sponsor_logo || null, sponsor_name || null, youtube_link || null, support_logo || null, req.params.id);
+    const { name, address, phone, status, latitude, longitude, sponsor_logo, sponsor_name, youtube_link, support_logo, photos } = req.body;
+    await db.prepare('UPDATE clinics SET name = ?, address = ?, phone = ?, status = ?, latitude = ?, longitude = ?, sponsor_logo = ?, sponsor_name = ?, youtube_link = ?, support_logo = ?, photos = ? WHERE id = ?').run(name, address, phone, status, latitude || null, longitude || null, sponsor_logo || null, sponsor_name || null, youtube_link || null, support_logo || null, photos || null, req.params.id);
     const clinic = await db.prepare('SELECT * FROM clinics WHERE id = ?').get(req.params.id);
     res.json(clinic);
   });

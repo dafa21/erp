@@ -660,7 +660,7 @@ export default function App() {
   const [patientProfileTab, setPatientProfileTab] = useState<'soap'|'vital'|'resep'|'anc'|'billing'|'lab'|'qrcard'|'referral'>('soap');
 
   // Form states
-  const [clinicForm, setClinicForm] = useState({ name: '', address: '', phone: '', status: 'Active', latitude: '', longitude: '', sponsor_logo: '', sponsor_name: '', youtube_link: '', support_logo: '' });
+  const [clinicForm, setClinicForm] = useState({ name: '', address: '', phone: '', status: 'Active', latitude: '', longitude: '', sponsor_logo: '', sponsor_name: '', youtube_link: '', support_logo: '', photos: '' });
   const [userForm, setUserForm] = useState({ username: '', password: '', name: '', role: 'Suster', clinic_id: '', status: 'Active', phone: '', accessible_menus: '' });
   const [whatsappPrompt, setWhatsappPrompt] = useState<{
     show: boolean;

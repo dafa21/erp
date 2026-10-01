@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Building2, Shield, Upload, Users, BedDouble, Clock, Wallet, Percent, MessageSquare } from 'lucide-react';
+import { X, Building2, Shield, Upload, Users, BedDouble, Clock, Wallet, Percent, MessageSquare, Camera, Image as ImageIcon } from 'lucide-react';
 
 export function ClinicSettingsModals({
   modalType, setModalType,
@@ -277,6 +277,159 @@ export function ClinicSettingsModals({
                               className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-[11px] bg-white dark:bg-slate-950 text-slate-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                               placeholder="Contoh: 08123456789"
                             />
+                          </div>
+                        </div>
+                        <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] font-mono">
+                              Foto Dokumentasi & Fasilitas Klinik
+                            </label>
+                            {(() => {
+                              let count = 0;
+                              try {
+                                if (clinicForm.photos) {
+                                  count = clinicForm.photos.startsWith('[') ? JSON.parse(clinicForm.photos).length : 1;
+                                }
+                              } catch(e) {}
+                              return count > 0 ? (
+                                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+                                  {count} Foto Tersimpan
+                                </span>
+                              ) : null;
+                            })()}
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-normal">
+                            Unggah beberapa foto fasilitas atau kegiatan klinik untuk ditampilkan pada profil popup dan peta website nurhealthconnection.com.
+                          </p>
+
+                          <div className="flex flex-col gap-3">
+                            <div>
+                              <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold cursor-pointer transition-all border border-indigo-200 dark:border-indigo-800 shadow-sm hover:shadow">
+                                <Camera className="w-4 h-4" />
+                                <span>Pilih & Upload Foto Klinik (Bisa Banyak)</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const files = e.target.files;
+                                    if (!files || files.length === 0) return;
+
+                                    const compressPhoto = (file) => {
+                                      return new Promise((resolve) => {
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                          const img = new Image();
+                                          img.onload = () => {
+                                            const canvas = document.createElement('canvas');
+                                            let width = img.width;
+                                            let height = img.height;
+                                            const maxDim = 1280;
+
+                                            if (width > maxDim || height > maxDim) {
+                                              if (width > height) {
+                                                height = Math.round((height * maxDim) / width);
+                                                width = maxDim;
+                                              } else {
+                                                width = Math.round((width * maxDim) / height);
+                                                height = maxDim;
+                                              }
+                                            }
+
+                                            canvas.width = width;
+                                            canvas.height = height;
+                                            const ctx = canvas.getContext('2d');
+                                            if (ctx) {
+                                              ctx.drawImage(img, 0, 0, width, height);
+                                              resolve(canvas.toDataURL('image/jpeg', 0.82));
+                                            } else {
+                                              resolve((event.target?.result as string) || '');
+                                            }
+                                          };
+                                          img.onerror = () => resolve((event.target?.result as string) || '');
+                                          img.src = (event.target?.result as string) || '';
+                                        };
+                                        reader.onerror = () => resolve('');
+                                        reader.readAsDataURL(file);
+                                      });
+                                    };
+
+                                    try {
+                                      const promises = [];
+                                      for (let i = 0; i < files.length; i++) {
+                                        if (files[i].type.startsWith('image/')) {
+                                          promises.push(compressPhoto(files[i]));
+                                        }
+                                      }
+                                      const results = await Promise.all(promises);
+                                      const validPhotos = results.filter((p) => Boolean(p) && p.length > 0);
+
+                                      let existingPhotos = [];
+                                      try {
+                                        if (clinicForm.photos) {
+                                          if (clinicForm.photos.startsWith('[')) {
+                                            existingPhotos = JSON.parse(clinicForm.photos);
+                                          } else {
+                                            existingPhotos = [clinicForm.photos];
+                                          }
+                                        }
+                                      } catch (err) {}
+
+                                      const combined = [...existingPhotos, ...validPhotos];
+                                      setClinicForm({ ...clinicForm, photos: JSON.stringify(combined) });
+                                    } catch (err) {
+                                      console.error('Error processing clinic photos:', err);
+                                      alert('Gagal memproses beberapa foto.');
+                                    }
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+                            </div>
+
+                            {(() => {
+                              let parsedPhotos = [];
+                              try {
+                                if (clinicForm.photos) {
+                                  parsedPhotos = clinicForm.photos.startsWith('[') ? JSON.parse(clinicForm.photos) : [clinicForm.photos];
+                                }
+                              } catch (e) {}
+
+                              if (parsedPhotos.length === 0) {
+                                return (
+                                  <div className="p-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center bg-slate-50/50 dark:bg-slate-800/20">
+                                    <ImageIcon className="w-6 h-6 text-slate-300 dark:text-slate-600 mx-auto mb-1" />
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">Belum ada foto yang diunggah</p>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div className="grid grid-cols-3 gap-2.5 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-800 max-h-56 overflow-y-auto custom-scrollbar">
+                                  {parsedPhotos.map((photo, idx) => (
+                                    <div key={idx} className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm">
+                                      <img src={photo} alt={`Foto Klinik ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                      <div className="absolute top-1 left-1 bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                        #{idx + 1}
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...parsedPhotos];
+                                          next.splice(idx, 1);
+                                          setClinicForm({ ...clinicForm, photos: next.length > 0 ? JSON.stringify(next) : '' });
+                                        }}
+                                        className="absolute top-1 right-1 bg-rose-500 hover:bg-rose-600 text-white rounded-lg p-1 shadow transition-all opacity-90 hover:opacity-100"
+                                        title="Hapus Foto"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       </>
