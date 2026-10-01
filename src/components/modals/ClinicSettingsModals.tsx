@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Building2, Shield, Upload, Users, BedDouble, Clock, Wallet, Percent, MessageSquare, Camera, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X, Building2, Shield, Upload, Users, BedDouble, Clock, Wallet, Percent, MessageSquare, Camera, Image as ImageIcon, Trash2, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 export function ClinicSettingsModals({
   modalType, setModalType,
@@ -12,294 +12,558 @@ export function ClinicSettingsModals({
   marginForm, setMarginForm, saveMargin,
   whatsappPrompt, setWhatsappPrompt, patientWaPrompt, setPatientWaPrompt, displayedClinicName, currentUser, coa
 }: any) {
+  const [clinicModalTab, setClinicModalTab] = useState<'info' | 'sponsor' | 'photos' | 'all'>('info');
+
+  const parsedClinicPhotos = useMemo(() => {
+    try {
+      if (clinicForm.photos) {
+        return clinicForm.photos.startsWith('[') ? JSON.parse(clinicForm.photos) : [clinicForm.photos];
+      }
+    } catch(e) {}
+    return [];
+  }, [clinicForm.photos]);
+
+  const handlePhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const compressPhoto = (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 1280;
+
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.82));
+            } else {
+              resolve((event.target?.result as string) || '');
+            }
+          };
+          img.onerror = () => resolve((event.target?.result as string) || '');
+          img.src = (event.target?.result as string) || '';
+        };
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(file);
+      });
+    };
+
+    try {
+      const promises: Promise<string>[] = [];
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].type.startsWith('image/')) {
+          promises.push(compressPhoto(files[i]));
+        }
+      }
+      const results = await Promise.all(promises);
+      const validPhotos = results.filter((p) => Boolean(p) && p.length > 0);
+
+      let existingPhotos: string[] = [];
+      try {
+        if (clinicForm.photos) {
+          existingPhotos = clinicForm.photos.startsWith('[') ? JSON.parse(clinicForm.photos) : [clinicForm.photos];
+        }
+      } catch (err) {}
+
+      const combined = [...existingPhotos, ...validPhotos];
+      setClinicForm({ ...clinicForm, photos: JSON.stringify(combined) });
+    } catch (err) {
+      console.error('Error processing clinic photos:', err);
+      alert('Gagal memproses beberapa foto.');
+    }
+    e.target.value = '';
+  };
+
   return (
     <>
       {modalType === 'clinic' as any && (
-          <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all flex flex-col max-h-[90vh]">
-              <div className="flex justify-between items-center p-6 border-b border-indigo-100 dark:border-indigo-900/20 bg-indigo-600 dark:bg-indigo-900 text-white shrink-0">
-                <h3 className="font-black uppercase tracking-widest text-sm">{editingItem ? 'Edit Infrastructure Protocol' : 'Initialize New Clinic Network'}</h3>
-                <button type="button" onClick={() => setModalType('none')} className="text-white hover:text-indigo-200 transition-colors focus:outline-none"><X className="w-5 h-5" /></button>
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 z-50 backdrop-blur-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 transition-all flex flex-col max-h-[92vh]">
+              {/* Header */}
+              <div className="flex justify-between items-center p-5 sm:p-6 border-b border-indigo-100 dark:border-indigo-900/30 bg-gradient-to-r from-indigo-600 to-indigo-700 dark:from-indigo-900 dark:to-indigo-950 text-white shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-black uppercase tracking-wider text-sm sm:text-base">
+                      {editingItem ? 'Edit Infrastructure Protocol' : 'Initialize New Clinic Network'}
+                    </h3>
+                    <p className="text-[11px] text-indigo-100/80 font-medium">
+                      {editingItem ? `Pengaturan & Fasilitas Klinik #${editingItem.id} — ${editingItem.name}` : 'Pendaftaran Unit Klinik Baru ke Jaringan SIMBA'}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setModalType('none')} 
+                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
+
+              {/* Navigation Tabs Bar */}
+              <div className="flex items-center gap-1.5 px-4 sm:px-6 pt-3 pb-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/70 shrink-0 overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => setClinicModalTab('info')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                    clinicModalTab === 'info'
+                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  <span>1. Info & Lokasi</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setClinicModalTab('sponsor')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                    clinicModalTab === 'sponsor'
+                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>2. Sponsor & Media</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setClinicModalTab('photos')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+                    clinicModalTab === 'photos'
+                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>3. Foto Fasilitas</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                    clinicModalTab === 'photos' 
+                      ? 'bg-white text-indigo-700' 
+                      : parsedClinicPhotos.length > 0
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                        : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                  }`}>
+                    {parsedClinicPhotos.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setClinicModalTab('all')}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ml-auto ${
+                    clinicModalTab === 'all'
+                      ? 'bg-slate-800 text-white dark:bg-slate-700'
+                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  📋 Lihat Semua
+                </button>
+              </div>
+
+              {/* Form Body */}
               <form onSubmit={saveClinic} className="flex flex-col overflow-hidden flex-grow">
-                <div className="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Clinic Designation</label>
-                  <input required value={clinicForm.name} onChange={e => setClinicForm({...clinicForm, name: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="Enter clinical label..." />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Physical Address Entry</label>
-                  <textarea value={clinicForm.address} onChange={e => setClinicForm({...clinicForm, address: e.target.value})} rows={3} className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="Clinical physical address..." />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Latitude Entry</label>
-                    <input required value={clinicForm.latitude} onChange={e => setClinicForm({...clinicForm, latitude: e.target.value})} type="number" step="any" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. -6.200000" />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Longitude Entry</label>
-                    <input required value={clinicForm.longitude} onChange={e => setClinicForm({...clinicForm, longitude: e.target.value})} type="number" step="any" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. 106.816666" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Communication Port</label>
-                    <input value={clinicForm.phone} onChange={e => setClinicForm({...clinicForm, phone: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="Protocol phone..." />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Operational Mode</label>
-                    <select value={clinicForm.status} onChange={e => setClinicForm({...clinicForm, status: (e.target.value as any)})} className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all">
-                      <option value="Active">Operational</option>
-                      <option value="Inactive">Terminated</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Company / Sponsor Logo</label>
-                  <div className="flex flex-col gap-4">
-                     <div className="flex items-center gap-4">
-                        {(() => {
-                            let parsed = [];
-                            try {
-                              if (clinicForm.sponsor_logo) {
-                                  parsed = clinicForm.sponsor_logo.startsWith('[') ? JSON.parse(clinicForm.sponsor_logo) : [clinicForm.sponsor_logo];
-                              }
-                            } catch(e) {}
-                            return parsed.map((lg, idx) => (
-                                <div key={idx} className="relative w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0 bg-transparent">
-                                  <img src={lg} alt="Sponsor Logo" className="w-full h-full object-contain p-1 mix-blend-multiply dark:mix-blend-normal" />
-                                  <button type="button" onClick={() => {
-                                      const next = [...parsed];
-                                      next.splice(idx, 1);
-                                      setClinicForm({...clinicForm, sponsor_logo: next.length ? JSON.stringify(next) : ''});
-                                  }} className="absolute top-0 right-0 bg-rose-500 text-white rounded-bl-lg p-0.5"><X className="w-3 h-3"/></button>
-                                </div>
-                            ));
-                        })()}
+                <div className="p-5 sm:p-7 space-y-6 overflow-y-auto custom-scrollbar flex-grow">
+                  
+                  {/* TAB 1: INFO & LOKASI */}
+                  {(clinicModalTab === 'info' || clinicModalTab === 'all') && (
+                    <div className="space-y-4">
+                      {clinicModalTab === 'all' && (
+                        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
+                          <Building2 className="w-4 h-4" />
+                          <h4 className="text-xs font-black uppercase tracking-wider">Bagian 1: Identitas & Lokasi Klinik</h4>
+                        </div>
+                      )}
 
-                        <label className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-xs font-bold cursor-pointer transition-colors border border-slate-200 dark:border-slate-700">
-                           <Upload className="w-3.5 h-3.5" /> Upload Logo
-                           <input type="file" accept="image/*" className="hidden" onChange={handleClinicLogoUpload} />
-                        </label>
-                     </div>
-                     <div>
-                       <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono mt-2">Sponsor Name / Company Name</label>
-                       <input value={clinicForm.sponsor_name} onChange={e => setClinicForm({...clinicForm, sponsor_name: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. PT Mitra Sehat" />
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">Clinic Designation</label>
+                        <input required value={clinicForm.name} onChange={e => setClinicForm({...clinicForm, name: e.target.value})} type="text" className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="Enter clinical label..." />
+                      </div>
 
-                       <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono mt-4">YouTube TV Link / Livestream Link</label>
-                       <input value={clinicForm.youtube_link} onChange={e => setClinicForm({...clinicForm, youtube_link: e.target.value})} type="text" className="w-full px-4 py-3 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="https://www.youtube.com/watch?v=..." />
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">Physical Address Entry</label>
+                        <textarea value={clinicForm.address} onChange={e => setClinicForm({...clinicForm, address: e.target.value})} rows={2} className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="Clinical physical address..." />
+                      </div>
 
-                       <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono mt-4">Support & Kerjasama Logo</label>
-                       <div className="flex flex-col gap-4">
-                         <div className="flex flex-wrap items-center gap-4">
-                            {(() => {
-                                let parsedSupport = [];
-                                try {
-                                  if (clinicForm.support_logo) {
-                                      parsedSupport = clinicForm.support_logo.startsWith('[') ? JSON.parse(clinicForm.support_logo) : [clinicForm.support_logo];
-                                  }
-                                } catch(e) {}
-                                return parsedSupport.map((lg: string, idx: number) => (
-                                    <div key={idx} className="relative w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0 bg-transparent">
-                                      <img src={lg} alt="Support Logo" className="w-full h-full object-contain p-1 mix-blend-multiply dark:mix-blend-normal" />
-                                      <button type="button" onClick={() => {
-                                          const next = [...parsedSupport];
-                                          next.splice(idx, 1);
-                                          setClinicForm({...clinicForm, support_logo: next.length ? JSON.stringify(next) : ''});
-                                      }} className="absolute top-0 right-0 bg-rose-500 text-white rounded-bl-lg p-0.5"><X className="w-3 h-3"/></button>
-                                    </div>
-                                ));
-                            })()}
-                            <label className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-xs font-bold cursor-pointer transition-colors border border-slate-200 dark:border-slate-700">
-                               <Upload className="w-3.5 h-3.5" /> Upload Image
-                               <input type="file" accept="image/*" className="hidden" onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    if (file.size > 2 * 1024 * 1024) { 
-                                      alert('Ukuran file maksimal 2MB.');
-                                      return;
-                                    }
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                       let existing: any[] = [];
-                                       try {
-                                           if (clinicForm.support_logo) {
-                                               if (clinicForm.support_logo.startsWith('[')) existing = JSON.parse(clinicForm.support_logo);
-                                               else existing = [clinicForm.support_logo];
-                                           }
-                                       } catch(e) {}
-                                       existing.push(reader.result);
-                                       setClinicForm({ ...clinicForm, support_logo: JSON.stringify(existing) });
-                                    };
-                                    reader.readAsDataURL(file);
-                                  }
-                               }} />
-                            </label>
-                         </div>
-                       </div>
-                     </div>
-                  </div>
-                </div>
-                
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] font-mono">
-                      Foto Fasilitas & Dokumentasi Klinik
-                    </label>
-                    {(() => {
-                      let count = 0;
-                      try {
-                        if (clinicForm.photos) {
-                          count = clinicForm.photos.startsWith('[') ? JSON.parse(clinicForm.photos).length : 1;
-                        }
-                      } catch(e) {}
-                      return count > 0 ? (
-                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
-                          {count} Foto Tersimpan
-                        </span>
-                      ) : null;
-                    })()}
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-normal">
-                    Unggah beberapa foto fasilitas atau dokumentasi klinik sekaligus untuk ditampilkan pada profil popup dan peta website nurhealthconnection.com.
-                  </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">Latitude Entry</label>
+                          <input required value={clinicForm.latitude} onChange={e => setClinicForm({...clinicForm, latitude: e.target.value})} type="number" step="any" className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. -8.5710031" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">Longitude Entry</label>
+                          <input required value={clinicForm.longitude} onChange={e => setClinicForm({...clinicForm, longitude: e.target.value})} type="number" step="any" className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. 118.6882646" />
+                        </div>
+                      </div>
 
-                  <div className="flex flex-col gap-3">
-                    <div>
-                      <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold cursor-pointer transition-all border border-indigo-200 dark:border-indigo-800 shadow-sm hover:shadow">
-                        <Camera className="w-4 h-4" />
-                        <span>Pilih & Upload Foto Klinik (Bisa Banyak)</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="hidden"
-                          onChange={async (e) => {
-                            const files = e.target.files;
-                            if (!files || files.length === 0) return;
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">Communication Port (No. Telp)</label>
+                          <input value={clinicForm.phone} onChange={e => setClinicForm({...clinicForm, phone: e.target.value})} type="text" className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. 08123456789" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">Operational Mode</label>
+                          <select value={clinicForm.status} onChange={e => setClinicForm({...clinicForm, status: (e.target.value as any)})} className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all">
+                            <option value="Active">Operational (Aktif)</option>
+                            <option value="Inactive">Terminated (Non-aktif)</option>
+                          </select>
+                        </div>
+                      </div>
 
-                            const compressPhoto = (file) => {
-                              return new Promise((resolve) => {
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                  const img = new Image();
-                                  img.onload = () => {
-                                    const canvas = document.createElement('canvas');
-                                    let width = img.width;
-                                    let height = img.height;
-                                    const maxDim = 1280;
-
-                                    if (width > maxDim || height > maxDim) {
-                                      if (width > height) {
-                                        height = Math.round((height * maxDim) / width);
-                                        width = maxDim;
-                                      } else {
-                                        width = Math.round((width * maxDim) / height);
-                                        height = maxDim;
-                                      }
-                                    }
-
-                                    canvas.width = width;
-                                    canvas.height = height;
-                                    const ctx = canvas.getContext('2d');
-                                    if (ctx) {
-                                      ctx.drawImage(img, 0, 0, width, height);
-                                      resolve(canvas.toDataURL('image/jpeg', 0.82));
-                                    } else {
-                                      resolve((event.target?.result as string) || '');
-                                    }
-                                  };
-                                  img.onerror = () => resolve((event.target?.result as string) || '');
-                                  img.src = (event.target?.result as string) || '';
-                                };
-                                reader.onerror = () => resolve('');
-                                reader.readAsDataURL(file);
-                              });
-                            };
-
-                            try {
-                              const promises = [];
-                              for (let i = 0; i < files.length; i++) {
-                                if (files[i].type.startsWith('image/')) {
-                                  promises.push(compressPhoto(files[i]));
-                                }
-                              }
-                              const results = await Promise.all(promises);
-                              const validPhotos = results.filter((p) => Boolean(p) && p.length > 0);
-
-                              let existingPhotos = [];
-                              try {
-                                if (clinicForm.photos) {
-                                  if (clinicForm.photos.startsWith('[')) {
-                                    existingPhotos = JSON.parse(clinicForm.photos);
-                                  } else {
-                                    existingPhotos = [clinicForm.photos];
-                                  }
-                                }
-                              } catch (err) {}
-
-                              const combined = [...existingPhotos, ...validPhotos];
-                              setClinicForm({ ...clinicForm, photos: JSON.stringify(combined) });
-                            } catch (err) {
-                              console.error('Error processing clinic photos:', err);
-                              alert('Gagal memproses beberapa foto.');
-                            }
-                            e.target.value = '';
-                          }}
-                        />
-                      </label>
-                    </div>
-
-                    {(() => {
-                      let parsedPhotos = [];
-                      try {
-                        if (clinicForm.photos) {
-                          parsedPhotos = clinicForm.photos.startsWith('[') ? JSON.parse(clinicForm.photos) : [clinicForm.photos];
-                        }
-                      } catch (e) {}
-
-                      if (parsedPhotos.length === 0) {
-                        return (
-                          <div className="p-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center bg-slate-50/50 dark:bg-slate-800/20">
-                            <ImageIcon className="w-6 h-6 text-slate-300 dark:text-slate-600 mx-auto mb-1" />
-                            <p className="text-xs text-slate-400 dark:text-slate-500">Belum ada foto yang diunggah</p>
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div className="grid grid-cols-3 gap-2.5 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-800 max-h-56 overflow-y-auto custom-scrollbar">
-                          {parsedPhotos.map((photo, idx) => (
-                            <div key={idx} className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm">
-                              <img src={photo} alt={`Foto Klinik ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                              <div className="absolute top-1 left-1 bg-black/60 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                                #{idx + 1}
+                      {/* Prominent Quick-Switch Card to Photos */}
+                      {clinicModalTab === 'info' && (
+                        <div className="pt-2">
+                          <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/40 dark:to-blue-950/40 border border-indigo-100 dark:border-indigo-900/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                                <Camera className="w-5 h-5" />
                               </div>
+                              <div>
+                                <h4 className="text-xs font-bold text-slate-800 dark:text-white">Foto & Dokumentasi Fasilitas Klinik</h4>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                  {parsedClinicPhotos.length > 0 
+                                    ? `Sudah ada ${parsedClinicPhotos.length} foto tersimpan untuk website nurhealthconnection.com`
+                                    : 'Belum ada foto yang diunggah. Klik untuk upload beberapa foto sekaligus.'}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 self-end sm:self-center">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  const next = [...parsedPhotos];
-                                  next.splice(idx, 1);
-                                  setClinicForm({ ...clinicForm, photos: next.length > 0 ? JSON.stringify(next) : '' });
-                                }}
-                                className="absolute top-1 right-1 bg-rose-500 hover:bg-rose-600 text-white rounded-lg p-1 shadow transition-all opacity-90 hover:opacity-100"
-                                title="Hapus Foto"
+                                onClick={() => setClinicModalTab('photos')}
+                                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow shrink-0 flex items-center gap-1.5"
                               >
-                                <X className="w-3 h-3" />
+                                <span>Kelola Foto ({parsedClinicPhotos.length})</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setClinicModalTab('sponsor')}
+                                className="px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all shrink-0"
+                              >
+                                Ke Sponsor →
                               </button>
                             </div>
-                          ))}
+                          </div>
                         </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-</div>
+                      )}
+                    </div>
+                  )}
 
-                <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex justify-end gap-3 shrink-0">
-                  <button type="button" onClick={() => setModalType('none')} className="px-6 py-2.5 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-black text-slate-500 hover:bg-white dark:hover:bg-slate-800 dark:text-slate-400 uppercase tracking-widest transition-all shadow-sm bg-white dark:bg-slate-800">Abort</button>
-                  <button type="submit" className="px-8 py-2.5 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 rounded-xl text-xs font-black text-white uppercase tracking-widest shadow-lg shadow-slate-200 dark:shadow-none transition-all">Synchronize Entry</button>
+                  {/* TAB 2: SPONSOR & MEDIA */}
+                  {(clinicModalTab === 'sponsor' || clinicModalTab === 'all') && (
+                    <div className="space-y-4">
+                      {clinicModalTab === 'all' && (
+                        <div className="flex items-center gap-2 pb-2 pt-2 border-b border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
+                          <Shield className="w-4 h-4" />
+                          <h4 className="text-xs font-black uppercase tracking-wider">Bagian 2: Sponsor & Media Integrasi</h4>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Company / Sponsor Logo</label>
+                        <div className="flex flex-wrap items-center gap-3">
+                          {(() => {
+                              let parsed = [];
+                              try {
+                                if (clinicForm.sponsor_logo) {
+                                    parsed = clinicForm.sponsor_logo.startsWith('[') ? JSON.parse(clinicForm.sponsor_logo) : [clinicForm.sponsor_logo];
+                                }
+                              } catch(e) {}
+                              return parsed.map((lg, idx) => (
+                                  <div key={idx} className="relative w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0 bg-transparent">
+                                    <img src={lg} alt="Sponsor Logo" className="w-full h-full object-contain p-1 mix-blend-multiply dark:mix-blend-normal" />
+                                    <button type="button" onClick={() => {
+                                        const next = [...parsed];
+                                        next.splice(idx, 1);
+                                        setClinicForm({...clinicForm, sponsor_logo: next.length ? JSON.stringify(next) : ''});
+                                    }} className="absolute top-0 right-0 bg-rose-500 text-white rounded-bl-lg p-0.5"><X className="w-3 h-3"/></button>
+                                  </div>
+                              ));
+                          })()}
+
+                          <label className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-xs font-bold cursor-pointer transition-colors border border-slate-200 dark:border-slate-700">
+                             <Upload className="w-3.5 h-3.5" /> Upload Sponsor Logo
+                             <input type="file" accept="image/*" className="hidden" onChange={handleClinicLogoUpload} />
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">Sponsor Name / Company Name</label>
+                          <input value={clinicForm.sponsor_name} onChange={e => setClinicForm({...clinicForm, sponsor_name: e.target.value})} type="text" className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="e.g. CIMB Niaga Syariah" />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1.5 font-mono">YouTube TV Link / Livestream Link</label>
+                          <input value={clinicForm.youtube_link} onChange={e => setClinicForm({...clinicForm, youtube_link: e.target.value})} type="text" className="w-full px-4 py-2.5 border-2 border-slate-100 dark:border-slate-800 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-750 focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="https://www.youtube.com/watch?v=..." />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 font-mono">Support & Kerjasama Logo</label>
+                        <div className="flex flex-wrap items-center gap-3">
+                          {(() => {
+                              let parsedSupport = [];
+                              try {
+                                if (clinicForm.support_logo) {
+                                    parsedSupport = clinicForm.support_logo.startsWith('[') ? JSON.parse(clinicForm.support_logo) : [clinicForm.support_logo];
+                                }
+                              } catch(e) {}
+                              return parsedSupport.map((lg: string, idx: number) => (
+                                  <div key={idx} className="relative w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 overflow-hidden shrink-0 bg-transparent">
+                                    <img src={lg} alt="Support Logo" className="w-full h-full object-contain p-1 mix-blend-multiply dark:mix-blend-normal" />
+                                    <button type="button" onClick={() => {
+                                        const next = [...parsedSupport];
+                                        next.splice(idx, 1);
+                                        setClinicForm({...clinicForm, support_logo: next.length ? JSON.stringify(next) : ''});
+                                    }} className="absolute top-0 right-0 bg-rose-500 text-white rounded-bl-lg p-0.5"><X className="w-3 h-3"/></button>
+                                  </div>
+                              ));
+                          })()}
+                          <label className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white rounded-xl text-xs font-bold cursor-pointer transition-colors border border-slate-200 dark:border-slate-700">
+                             <Upload className="w-3.5 h-3.5" /> Upload Mitra Logo
+                             <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  if (file.size > 2 * 1024 * 1024) { 
+                                    alert('Ukuran file maksimal 2MB.');
+                                    return;
+                                  }
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                     let existing: any[] = [];
+                                     try {
+                                         if (clinicForm.support_logo) {
+                                             if (clinicForm.support_logo.startsWith('[')) existing = JSON.parse(clinicForm.support_logo);
+                                             else existing = [clinicForm.support_logo];
+                                         }
+                                     } catch(e) {}
+                                     existing.push(reader.result);
+                                     setClinicForm({ ...clinicForm, support_logo: JSON.stringify(existing) });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                             }} />
+                          </label>
+                        </div>
+                      </div>
+
+                      {clinicModalTab === 'sponsor' && (
+                        <div className="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => setClinicModalTab('info')}
+                            className="px-3.5 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5 transition-colors"
+                          >
+                            <ArrowLeft className="w-3.5 h-3.5" />
+                            <span>Kembali ke Info</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setClinicModalTab('photos')}
+                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow flex items-center gap-1.5"
+                          >
+                            <span>Lanjut ke Foto Fasilitas 📸</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 3: FOTO FASILITAS & DOKUMENTASI KLINIK */}
+                  {(clinicModalTab === 'photos' || clinicModalTab === 'all') && (
+                    <div className="space-y-4">
+                      {clinicModalTab === 'all' && (
+                        <div className="flex items-center gap-2 pb-2 pt-2 border-b border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400">
+                          <Camera className="w-4 h-4" />
+                          <h4 className="text-xs font-black uppercase tracking-wider">Bagian 3: Foto Fasilitas & Dokumentasi Klinik</h4>
+                        </div>
+                      )}
+
+                      {/* Photo Section Banner & Info */}
+                      <div className="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                            <Camera className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">
+                              Galeri Dokumentasi Fasilitas Klinik
+                            </h4>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                              Foto-foto ini otomatis tampil di peta sebaran & kartu detail website <strong className="text-indigo-600 dark:text-indigo-400">nurhealthconnection.com</strong>.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 px-3 py-1 rounded-xl border border-indigo-200 dark:border-indigo-800 shadow-xs">
+                            {parsedClinicPhotos.length} Foto Tersimpan
+                          </span>
+                          {parsedClinicPhotos.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm('Apakah Anda yakin ingin menghapus semua foto klinik ini?')) {
+                                  setClinicForm({ ...clinicForm, photos: '' });
+                                }
+                              }}
+                              className="px-2.5 py-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors flex items-center gap-1"
+                              title="Hapus Semua Foto"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              <span>Hapus Semua</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Dropzone / Upload Box */}
+                      <div>
+                        <label className="flex flex-col items-center justify-center p-6 sm:p-8 border-2 border-dashed border-indigo-300 dark:border-indigo-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-3xl bg-indigo-50/30 hover:bg-indigo-50/70 dark:bg-indigo-950/10 dark:hover:bg-indigo-950/30 cursor-pointer transition-all group text-center">
+                          <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform shadow-xs">
+                            <Camera className="w-6 h-6" />
+                          </div>
+                          <span className="text-xs sm:text-sm font-black text-indigo-700 dark:text-indigo-300 tracking-wide mb-1">
+                            + Klik di Sini untuk Memilih & Upload Foto Klinik
+                          </span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 max-w-md">
+                            Dapat memilih beberapa foto sekaligus dari galeri atau kamera (JPG, PNG, WEBP). Foto otomatis dikompresi kualitas tinggi agar loading website cepat.
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handlePhotosUpload}
+                          />
+                        </label>
+                      </div>
+
+                      {/* Photo Gallery Grid */}
+                      {parsedClinicPhotos.length === 0 ? (
+                        <div className="p-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center bg-slate-50/50 dark:bg-slate-800/20">
+                          <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">Belum ada foto fasilitas klinik yang diunggah</p>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Klik tombol upload di atas untuk menambahkan dokumentasi gedung, ruang periksa, atau fasilitas.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between px-1">
+                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                              Preview Galeri Foto ({parsedClinicPhotos.length})
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              Klik tombol × merah untuk menghapus foto tertentu
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-3 bg-slate-50 dark:bg-slate-850 rounded-2xl border border-slate-200 dark:border-slate-800 max-h-72 overflow-y-auto custom-scrollbar">
+                            {parsedClinicPhotos.map((photo: string, idx: number) => (
+                              <div 
+                                key={idx} 
+                                className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm"
+                              >
+                                <img 
+                                  src={photo} 
+                                  alt={`Foto Klinik ${idx + 1}`} 
+                                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
+                                />
+                                <div className="absolute top-1.5 left-1.5 bg-black/70 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                                  #{idx + 1}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = [...parsedClinicPhotos];
+                                    next.splice(idx, 1);
+                                    setClinicForm({ ...clinicForm, photos: next.length > 0 ? JSON.stringify(next) : '' });
+                                  }}
+                                  className="absolute top-1.5 right-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg p-1.5 shadow transition-all opacity-90 hover:opacity-100"
+                                  title="Hapus Foto Ini"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {clinicModalTab === 'photos' && (
+                        <div className="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800">
+                          <button
+                            type="button"
+                            onClick={() => setClinicModalTab('info')}
+                            className="px-3.5 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5 transition-colors"
+                          >
+                            <ArrowLeft className="w-3.5 h-3.5" />
+                            <span>Kembali ke Info Klinik</span>
+                          </button>
+                          <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Siap Disimpan via Synchronize Entry</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Footer Actions */}
+                <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="font-bold text-slate-700 dark:text-slate-300">
+                      {clinicForm.name || 'Klinik Baru'}
+                    </span>
+                    <span>•</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                      {parsedClinicPhotos.length} Foto
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <button 
+                      type="button" 
+                      onClick={() => setModalType('none')} 
+                      className="px-5 py-2.5 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-xs font-black text-slate-500 hover:bg-white dark:hover:bg-slate-800 dark:text-slate-400 uppercase tracking-widest transition-all shadow-sm bg-white dark:bg-slate-800"
+                    >
+                      Abort
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="px-7 py-2.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 rounded-xl text-xs font-black text-white uppercase tracking-widest shadow-lg shadow-indigo-200 dark:shadow-none transition-all flex items-center gap-2"
+                    >
+                      <span>Synchronize Entry</span>
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
